@@ -62,6 +62,18 @@
     <Compile Include="Model\Entity.cs" />
     <Compile Include="Model\EntityType.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\MeasurementGraphViewModel.cs" />
+    <Compile Include="ViewModel\NetworkDisplayViewModel.cs" />
+    <Compile Include="ViewModel\NetworkEntitiesViewModel.cs" />
+    <Compile Include="Views\MeasurementGraphView.xaml.cs">
+      <DependentUpon>MeasurementGraphView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NetworkDisplayView.xaml.cs">
+      <DependentUpon>NetworkDisplayView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NetworkEntitiesView.xaml.cs">
+      <DependentUpon>NetworkEntitiesView.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -74,6 +86,18 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\MeasurementGraphView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NetworkDisplayView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NetworkEntitiesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -101,9 +125,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Data\log.txt" />
   </ItemGroup>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MVVM3.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,18 +9,36 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace NetworkService.ViewModel
 {
-    public class MainWindowViewModel
+    public class MainWindowViewModel : BindableBase
     {
+        public MyICommand<string> NavCommand { get; private set; }
         private int count = 10; // Inicijalna vrednost broja objekata u sistemu
                                 // ######### ZAMENITI stvarnim brojem elemenata
                                 //           zavisno od broja entiteta u listi
-
+        public NetworkEntitiesViewModel networkEntitiesViewModel;
+        public NetworkDisplayViewModel networkDisplayViewModel;
+        public MeasurementGraphViewModel measurementGraphViewModel;
+        private BindableBase currentViewModel;
+        public BindableBase CurrentViewModel
+        {
+            get { return currentViewModel; }
+            set
+            {
+                SetProperty(ref currentViewModel, value);
+            }
+        }
         public MainWindowViewModel()
         {
             createListener(); //Povezivanje sa serverskom aplikacijom
+            NavCommand = new MyICommand<string>(OnNav);
+            networkDisplayViewModel = new NetworkDisplayViewModel();
+            networkEntitiesViewModel = new NetworkEntitiesViewModel();
+            measurementGraphViewModel = new MeasurementGraphViewModel();
+            currentViewModel = networkEntitiesViewModel;
         }
 
         private void createListener()
@@ -70,5 +89,21 @@ namespace NetworkService.ViewModel
             listeningThread.IsBackground = true;
             listeningThread.Start();
         }
+        private void OnNav(string destination)
+        {
+            switch (destination)
+            {
+                case "entity":
+                    CurrentViewModel = networkEntitiesViewModel;
+                    break;
+                case "display":
+                    CurrentViewModel = networkDisplayViewModel;
+                    break;
+                case "graph":
+                    CurrentViewModel = measurementGraphViewModel;
+                    break;
+            }
+        }
+
     }
 }
