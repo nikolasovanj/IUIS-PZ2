@@ -14,6 +14,10 @@ namespace NetworkService.Model
         private EntityType type;
         private int value;
 
+        public Entity()
+        {
+        }
+
         public int ID
         {
             get { return id; }
@@ -22,7 +26,7 @@ namespace NetworkService.Model
                 if (id != value)
                 { 
                     id = value;
-                    OnPropertyChanged(nameof(ID));
+                    OnPropertyChanged("ID");
                 }
             }
         }
@@ -34,7 +38,7 @@ namespace NetworkService.Model
                 if (name != value)
                 {
                     name = value; 
-                    OnPropertyChanged(nameof(Name));
+                    OnPropertyChanged("Name");
                 }
             }
         }
@@ -46,7 +50,7 @@ namespace NetworkService.Model
                 if (type != value)
                 {
                     type = value;
-                    OnPropertyChanged(nameof(Type));
+                    OnPropertyChanged("Type");
                 }
             }
         }
@@ -58,19 +62,23 @@ namespace NetworkService.Model
                 if (this.value != value)
                 {
                     this.value = value;
-                    OnPropertyChanged(nameof(Value));
+                    OnPropertyChanged("Value");
                 }
             }
         }
 
         protected override void ValidateSelf()
         {
-            if (string.IsNullOrWhiteSpace(name)){
-                ValidationErrors[nameof(Name)] = "Name is required";
+            if (string.IsNullOrWhiteSpace(this.name)){
+                this.ValidationErrors["Name"] = "Name is required";
             }
-            if(id <= 0)
+            if(this.id <= 0)
             {
-                ValidationErrors[nameof(ID)] = "Id cannot be negative";
+                this.ValidationErrors["ID"] = "Id cannot be negative";
+            }
+            if(this.type == null)
+            {
+                this.ValidationErrors["Type"] = "Type is required";
             }
         }
     }

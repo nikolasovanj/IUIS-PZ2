@@ -1,6 +1,9 @@
 ﻿using MVVM3.Helpers;
+using MVVMLight.Messaging;
+using NetworkService.Model;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -16,6 +19,8 @@ namespace NetworkService.ViewModel
     public class MainWindowViewModel : BindableBase
     {
         public MyICommand<string> NavCommand { get; private set; }
+
+        public static ObservableCollection<Entity> Entities { get; set; }
         private int count = 10; // Inicijalna vrednost broja objekata u sistemu
                                 // ######### ZAMENITI stvarnim brojem elemenata
                                 //           zavisno od broja entiteta u listi
@@ -35,10 +40,15 @@ namespace NetworkService.ViewModel
         {
             createListener(); //Povezivanje sa serverskom aplikacijom
             NavCommand = new MyICommand<string>(OnNav);
+
+            Entities = new ObservableCollection<Entity>();
+
             networkDisplayViewModel = new NetworkDisplayViewModel();
             networkEntitiesViewModel = new NetworkEntitiesViewModel();
             measurementGraphViewModel = new MeasurementGraphViewModel();
             currentViewModel = networkEntitiesViewModel;
+
+            Messenger.Default.Register<Entity>(this, AddToList);
         }
 
         private void createListener()
@@ -103,6 +113,12 @@ namespace NetworkService.ViewModel
                     CurrentViewModel = measurementGraphViewModel;
                     break;
             }
+        }
+
+        private void AddToList(Entity entity)
+        {
+            Entities.Add(entity);
+            Console.WriteLine(entity.ID);
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetworkService.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,7 @@ namespace NetworkService.Views
         public NetworkEntitiesView()
         {
             InitializeComponent();
+            this.DataContext = new NetworkEntitiesViewModel(MainWindowViewModel.Entities);
         }
     }
 }
