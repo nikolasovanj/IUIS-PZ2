@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MVVM3.Helpers
+namespace NetworkService.Helpers
 {
     public class ValidationErrors : BindableBase
     {

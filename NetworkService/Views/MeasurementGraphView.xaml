@@ -4,9 +4,140 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NetworkService.Views"
+             xmlns:converter="clr-namespace:NetworkService.Helpers.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <converter:ReadingToGraphPositionConverter x:Key="GraphConverter"/>
+    </UserControl.Resources>
     <Grid>
-        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Graphs</TextBlock>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="6*" />
+            <ColumnDefinition Width="6*" />
+            <ColumnDefinition Width="6*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <ComboBox 
+            Grid.Row="1"
+            Grid.Column="1"
+            Width="160"
+            Height="30"
+            ItemsSource="{Binding Entities}"
+            SelectedItem="{Binding CurrentEntity, Mode=TwoWay}"
+            DisplayMemberPath="Name"/>
+
+        <Canvas
+            Grid.Row="2"
+            Grid.Column="1"
+            Grid.ColumnSpan="2">
+            <Line 
+                X1="40" Y1="{Binding LastReading[0], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
+                X2="140" Y2="{Binding LastReading[1], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
+                Stroke="Blue"
+                StrokeThickness="4"/>
+            <Ellipse 
+                x:Name="Point1"
+                Height="40" 
+                Width="40" 
+                Fill="Blue" 
+                Canvas.Top="{Binding LastReading[0], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
+                Canvas.Left="20"
+                />
+            <Label
+                Canvas.Left="25"
+                Canvas.Top="{Binding LastReading[0], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
+                Content="{Binding LastReading[0]}" />
+            <Line 
+                X1="140" Y1="{Binding LastReading[1], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
+                X2="240" Y2="{Binding LastReading[2], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
+                Stroke="Blue"
+                StrokeThickness="4"/>
+            <Ellipse 
+                x:Name="Point2"
+                Height="40" 
+                Width="40" 
+                Fill="Blue" 
+                Canvas.Top="{Binding LastReading[1], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
+                Canvas.Left="120"
+                />
+            <Label
+                Canvas.Left="125"
+                Canvas.Top="{Binding LastReading[1], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
+                Content="{Binding LastReading[1]}" />
+            <Line 
+                X1="240" Y1="{Binding LastReading[2], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
+                X2="340" Y2="{Binding LastReading[3], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
+                Stroke="Blue"
+                StrokeThickness="4"/>
+            <Ellipse 
+                x:Name="Point3"
+                Height="40" 
+                Width="40" 
+                Fill="Blue" 
+                Canvas.Top="{Binding LastReading[2], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
+                Canvas.Left="220"
+                />
+            <Label
+                Canvas.Left="225"
+                Canvas.Top="{Binding LastReading[2], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
+                Content="{Binding LastReading[2]}" />
+            <Line 
+                X1="340" Y1="{Binding LastReading[3], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
+                X2="440" Y2="{Binding LastReading[4], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
+                Stroke="Blue"
+                StrokeThickness="4"/>
+            <Ellipse 
+                x:Name="Point4"
+                Height="40" 
+                Width="40" 
+                Fill="Blue" 
+                Canvas.Top="{Binding LastReading[3], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
+                Canvas.Left="320"
+                />
+            <Label
+                Canvas.Left="325"
+                Canvas.Top="{Binding LastReading[3], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
+                Content="{Binding LastReading[3]}" />
+
+            <Ellipse 
+                x:Name="Point5"
+                Height="40" 
+                Width="40" 
+                Fill="Blue" 
+                Canvas.Top="{Binding LastReading[4], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
+                Canvas.Left="420"
+                />
+            <Label
+                Canvas.Left="425"
+                Canvas.Top="{Binding LastReading[4], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
+                Content="{Binding LastReading[4]}" />
+
+        </Canvas>
+
+        <Rectangle
+            Grid.Column="3"
+            Grid.Row="2"
+            Height="60"
+            Fill="Blue"
+            Width="200"/>
+        <Rectangle
+            Grid.Column="3"
+            Grid.Row="2"
+            Height="60"
+            Fill="Yellow"
+            Margin="17.5"
+            HorizontalAlignment="Left"
+            Width="{Binding Path=TypeCount}"/>
+
+
+
     </Grid>
 </UserControl>

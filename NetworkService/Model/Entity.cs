@@ -1,9 +1,4 @@
-﻿using MVVM3.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NetworkService.Helpers;
 
 namespace NetworkService.Model
 {
@@ -21,12 +16,12 @@ namespace NetworkService.Model
         public int ID
         {
             get { return id; }
-            set 
+            set
             {
                 if (id != value)
-                { 
+                {
                     id = value;
-                    OnPropertyChanged("ID");
+                    OnPropertyChanged(nameof(ID));
                 }
             }
         }
@@ -37,8 +32,8 @@ namespace NetworkService.Model
             {
                 if (name != value)
                 {
-                    name = value; 
-                    OnPropertyChanged("Name");
+                    name = value;
+                    OnPropertyChanged(nameof(Name));
                 }
             }
         }
@@ -50,7 +45,7 @@ namespace NetworkService.Model
                 if (type != value)
                 {
                     type = value;
-                    OnPropertyChanged("Type");
+                    OnPropertyChanged(nameof(Type));
                 }
             }
         }
@@ -62,21 +57,22 @@ namespace NetworkService.Model
                 if (this.value != value)
                 {
                     this.value = value;
-                    OnPropertyChanged("Value");
+                    OnPropertyChanged(nameof(Value));
                 }
             }
         }
 
         protected override void ValidateSelf()
         {
-            if (string.IsNullOrWhiteSpace(this.name)){
+            if (string.IsNullOrWhiteSpace(this.name))
+            {
                 this.ValidationErrors["Name"] = "Name is required";
             }
-            if(this.id <= 0)
+            if (this.id <= 0)
             {
                 this.ValidationErrors["ID"] = "Id cannot be negative";
             }
-            if(this.type == null)
+            if (this.type == null)
             {
                 this.ValidationErrors["Type"] = "Type is required";
             }

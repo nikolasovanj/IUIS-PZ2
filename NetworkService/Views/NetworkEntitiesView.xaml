@@ -4,8 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NetworkService.Views"
+             xmlns:converter="clr-namespace:NetworkService.Helpers.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <converter:IDFilterRadioConverter x:Key="IDRadioConverter" />
+        <converter:ValueRadioConverter x:Key="ValueRadioConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -24,7 +29,8 @@
         </Grid.ColumnDefinitions>
         <StackPanel
             Grid.Row="1"
-            Grid.Column="1">
+            Grid.Column="1"
+            Margin="5 0 5 5">
             <TextBox Text="{Binding CurrentEntity.ID, Mode=TwoWay}" />
         </StackPanel>
         <StackPanel
@@ -32,28 +38,34 @@
             HorizontalAlignment="Right"
             Height="40"
             Grid.Row="1"
-            Grid.Column="1">
+            Grid.Column="1"
+            Margin="5 5 5 0">
             <TextBlock 
                 Foreground="Red"
-                Text="{Binding CurrentNote.ValidationErrors[ID]}"/>
+                Text="{Binding CurrentEntity.ValidationErrors[ID]}"/>
         </StackPanel>
         <StackPanel
             Grid.Row="1"
-            Grid.Column="2">
+            Grid.Column="2"
+            Margin="5 0 5 5">
             <TextBox 
                 Text="{Binding CurrentEntity.Name, Mode=TwoWay}" />
         </StackPanel>
-        <StackPanel 
+        <StackPanel
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
             Height="40"
             Grid.Row="1"
-            Grid.Column="2">
+            Grid.Column="2"
+            Margin="5 5 5 0">
             <TextBlock 
                 Foreground="Red"
-                Text="{Binding CurrentNote.ValidationErrors[Name]}"/>
+                Text="{Binding CurrentEntity.ValidationErrors[Name]}"/>
         </StackPanel>
         <StackPanel
             Grid.Row="1"
-            Grid.Column="3">
+            Grid.Column="3"
+            Margin="5 0 5 5">
             <ComboBox
                 ItemsSource="{Binding Path=Types, Mode=OneTime}"
                 SelectedItem="{Binding Path=CurrentEntity.Type, Mode=TwoWay}"
@@ -61,12 +73,15 @@
             </ComboBox>
         </StackPanel>
         <StackPanel
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
             Height="40"
             Grid.Row="1"
-            Grid.Column="3">
+            Grid.Column="3"
+            Margin="5 10 5 0">
             <TextBlock 
                 Foreground="Red"
-                Text="{Binding CurrentNote.ValidationErrors[Type]}"/>
+                Text="{Binding CurrentEntity.ValidationErrors[Type]}"/>
         </StackPanel>
         <Button 
             Grid.Column="4"
@@ -75,13 +90,92 @@
             Width="160"
             Content="Add"
             Command="{Binding AddNewEntity}"/>
-
+        <Grid
+            Grid.Row="2"
+            Grid.Column="1"
+            Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Label
+                Grid.Column="0"
+                Grid.Row="0"
+                FontSize="12">Filters</Label>
+            <StackPanel
+                Grid.Row="1"
+                Grid.Column="0"
+                Margin="5 0 5 5"
+                Orientation="Horizontal">
+                <Label>Type</Label>
+                <ComboBox
+                    Height="20"
+                    Width="130"
+                     ItemsSource="{Binding Path=Types, Mode=OneTime}"
+                     SelectedItem="{Binding Filter.Type, Mode=TwoWay}"
+                     DisplayMemberPath="Name">
+                </ComboBox>
+            </StackPanel>
+            <StackPanel
+                Grid.Row="2"
+                Grid.Column="0"
+                Margin="0 0 0 5">
+                <Label>ID</Label>
+                <StackPanel 
+                    Orientation="Horizontal">
+                    <RadioButton 
+                        Content=">" 
+                        IsChecked="{Binding Filter.IDFilter, Converter={StaticResource IDRadioConverter}, ConverterParameter=Higher}"/>
+                    <RadioButton 
+                        Content="&lt;" 
+                        IsChecked="{Binding Filter.IDFilter, Converter={StaticResource IDRadioConverter}, ConverterParameter=Lower}"/>
+                    <RadioButton 
+                        Content="=" 
+                        IsChecked="{Binding Filter.IDFilter, Converter={StaticResource IDRadioConverter}, ConverterParameter=Equal}"/>
+                    <TextBox 
+                        Height="20"
+                        Width="80"
+                        Margin="5"
+                        Text="{Binding Filter.ID, Mode=TwoWay}"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel 
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                Grid.Column="1" 
+                Orientation="Vertical">
+                <Label>Range</Label>
+                <RadioButton
+                    Content="All"
+                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=All}" />
+                <RadioButton
+                    Content="In range"
+                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=InsideBounds}" />
+                <RadioButton
+                    Content="Out of range"
+                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=OutOfBounds }" />
+            </StackPanel>
+            <Button 
+                Grid.Row="2" 
+                Grid.Column="1"
+                Height="20"
+                Width="100"
+                Content="Reset"
+                HorizontalAlignment="Right"
+                Command="{Binding ResetFilter}"/>
+        </Grid>
         <DataGrid
             Grid.Row="3"
             Grid.Column="1"
             Grid.ColumnSpan="3"
             AutoGenerateColumns="False"
-            ItemsSource="{Binding Path=Entities}"
+            CanUserAddRows="False"
+            ItemsSource="{Binding Path=FilteredEntities}"
             SelectedItem="{Binding SelectedEntity, Mode=TwoWay}">
             <DataGrid.Columns>
                 <DataGridTextColumn

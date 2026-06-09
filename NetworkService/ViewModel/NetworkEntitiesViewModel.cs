@@ -1,49 +1,61 @@
-﻿using MVVM3.Helpers;
-using MVVMLight.Messaging;
+﻿using MVVMLight.Messaging;
+using NetworkService.Helpers;
 using NetworkService.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NetworkService.ViewModel
 {
     public class NetworkEntitiesViewModel : BindableBase
     {
-        public MyICommand AddNewEntity {  get; set; }
-        public MyICommand DeleteEntity {  get; set; }
+        public MyICommand AddNewEntity { get; set; }
+        public MyICommand DeleteEntity { get; set; }
+        public MyICommand ResetFilter { get; set; }
         private Entity currentEntity = new Entity();
         private Entity selectedEntity = new Entity();
         public ObservableCollection<EntityType> Types { get; }
         public ObservableCollection<Entity> Entities { get; }
-        public EntityType SelectedType { get; set; }
+        private ObservableCollection<Entity> _filteredEntities;
+        
+        private readonly int HighLimit = 350;
+        private readonly int LowLimit = 250;
+        private TableFilter _filter = new TableFilter();
 
         public NetworkEntitiesViewModel()
         {
             AddNewEntity = new MyICommand(OnAdd);
             DeleteEntity = new MyICommand(OnDelete);
+            ResetFilter = new MyICommand(OnResetFilter);
             Types = new ObservableCollection<EntityType>()
             {
                 new EntityType("RTD", "/"),
                 new EntityType("TermoSprega", "/")
             };
             Entities = new ObservableCollection<Entity>();
+            FilteredEntities = Entities;
+            _filter.PropertyChanged += FilterChanged;
         }
         public NetworkEntitiesViewModel(ObservableCollection<Entity> entities)
         {
             AddNewEntity = new MyICommand(OnAdd);
             DeleteEntity = new MyICommand(OnDelete);
+            ResetFilter = new MyICommand(OnResetFilter);
             Types = new ObservableCollection<EntityType>()
             {
                 new EntityType("RTD", "/"),
                 new EntityType("TermoSprega", "/")
             };
             Entities = entities;
+            FilteredEntities = entities;
+            _filter.PropertyChanged += FilterChanged;
         }
 
-        public Entity CurrentEntity { 
+        public Entity CurrentEntity
+        {
             get { return currentEntity; }
             set
             {
@@ -66,6 +78,30 @@ namespace NetworkService.ViewModel
                 }
             }
         }
+        public TableFilter Filter
+        {
+            get { return _filter; }
+            set
+            {
+                if(_filter != value)
+                {
+                    _filter = value;
+                    OnPropertyChanged("Filter");
+                }
+            }
+        }
+        public ObservableCollection<Entity> FilteredEntities
+        {
+            get { return _filteredEntities; }
+            set
+            {
+                if (_filteredEntities != value)
+                {
+                    _filteredEntities = value;
+                    OnPropertyChanged(nameof(FilteredEntities));
+                }
+            }
+        }
 
         private void OnAdd()
         {
@@ -84,9 +120,56 @@ namespace NetworkService.ViewModel
                 CurrentEntity.Type = null;
             }
         }
-        private void OnDelete() 
+        private void OnDelete()
         {
             Entities.Remove(selectedEntity);
+        }
+        private void OnResetFilter()
+        {
+            Filter = new TableFilter();
+            FilteredEntities = Entities;
+        }
+        private void FilterChanged(object sender, PropertyChangedEventArgs args)
+        {   
+            FilteredEntities = Entities;
+            Trace.WriteLine(args.PropertyName);
+            if(Filter.Type != null)
+            {
+                FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.Type.Name.Equals(Filter.Type.Name)));
+            }
+            if (Filter.ID != null && Filter.ID > 0)
+            {
+                if (Filter.IDFilter != null)
+                { 
+                    Trace.WriteLine(Filter.IDFilter.ToString());
+                    switch(Filter.IDFilter)
+                    {
+                        case IDFilter.Lower:
+                            FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID < Filter.ID));
+                            break;
+                        case IDFilter.Higher:
+                            FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID > Filter.ID));
+                            break;
+                        case IDFilter.Equal:
+                            FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID == Filter.ID));
+                            break;
+                    }
+                }
+            }
+            if (Filter.ValueFilter != null)
+            {
+                switch (Filter.ValueFilter)
+                {
+                    case ValueFilter.OutOfBounds:
+                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.Value >= HighLimit || e.Value <= LowLimit));
+                        break;
+                    case ValueFilter.InsideBounds:
+                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.Value < HighLimit && e.Value > LowLimit));
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }
