@@ -1,8 +1,11 @@
 ﻿using NetworkService.Helpers;
 using NetworkService.Model;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 
 namespace NetworkService.ViewModel
@@ -13,13 +16,9 @@ namespace NetworkService.ViewModel
         private Entity currentEntity;
 
         private readonly double _typeCount = 0;
-        private readonly double _grapMaxHight = 450;
-        private int[] _lastReadings = new int[5];
 
-        public int PointOffset { get; } = 150;
-        public int EdgeOffset { get; } = 170;
-        public int PointLabelOffset { get; } = 160;
-
+        private ObservableCollection<GraphPoint> _points;
+        private ObservableCollection<GraphEdge> _edges;
 
 
         public MeasurementGraphViewModel(ObservableCollection<Entity> entities)
@@ -38,8 +37,11 @@ namespace NetworkService.ViewModel
                 _typeCount *= 200;
             }
             CurrentEntity = entities[0];
-            loadReadings();
-            CurrentEntity.PropertyChanged += SelectionChanged;
+            CurrentEntity.PropertyChanged += ValueChanged;
+            InitializePoints();
+            LoadReading(currentEntity.LastValues);
+            InitializeEdges();
+            CreateEdges();
         }
 
         public MeasurementGraphViewModel()
@@ -58,9 +60,16 @@ namespace NetworkService.ViewModel
                 _typeCount *= 200;
             }
             CurrentEntity = new Entity();
-            CurrentEntity.PropertyChanged += SelectionChanged;
-            PropertyChanged += SelectionChanged;
+            CurrentEntity.PropertyChanged += ValueChanged;
+            InitializePoints();
+            LoadReading(currentEntity.LastValues);
+            InitializeEdges();
+            CreateEdges();
+
         }
+
+
+
         public Entity CurrentEntity
         {
             get { return currentEntity; }
@@ -77,35 +86,78 @@ namespace NetworkService.ViewModel
         {
             get { return _typeCount; }
         }
-        public int[] LastReading
+        public ObservableCollection<GraphPoint> Points
         {
-            get { return _lastReadings; }
-        }
-        public void SelectionChanged(object sender, PropertyChangedEventArgs args)
-        {
-            if (args.PropertyName == "CurrentEntity")
+            get { return _points; }
+            set
             {
-                loadReadings();
+                if (value != _points)
+                {
+                    _points = value;
+                    OnPropertyChanged(nameof(Points));
+                }
             }
         }
-        private void loadReadings()
-        {
-            int i = 0;
-            using (TextReader tr = File.OpenText("../../Data/log.txt"))
+        public ObservableCollection<GraphEdge> Edges
+        { 
+            get { return _edges; }
+            set
             {
-                string line;
-                while ((line = tr.ReadLine()) != null)
+                if(value != _edges)
                 {
-                    string[] parts = line.Split(new char[] { '_', ':' });
-                    if (int.Parse(parts[3]) + 1 == currentEntity.ID)
-                    {
-                        _lastReadings[i] = int.Parse(parts[4]);
-                        i++;
-                    }
-                    if (i >= _lastReadings.Length)
-                    {
-                        break;
-                    }
+                    _edges = value;
+                    OnPropertyChanged(nameof(Edges));
+                }
+            }
+        }
+        private void ValueChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Entity.Value))
+            {
+                LoadReading(currentEntity.LastValues);
+            }
+        }
+        private void InitializePoints()
+        {
+            Points = new ObservableCollection<GraphPoint>
+            {
+                new GraphPoint(),
+                new GraphPoint(),
+                new GraphPoint(),
+                new GraphPoint(),
+                new GraphPoint()
+            };
+        }
+        private void LoadReading(int[] readings)
+        {
+            if(readings.Length > 0)
+            {
+                for (int i = 0; i < readings.Length; i++)
+                {
+                    Points[i].Value = readings[i]; 
+                    Points[i].X = i * 100 + 20;
+                    Points[i].Y = 250 - ((readings[i] - 150) * 5 / 6);
+                }
+            }
+        }
+        private void InitializeEdges()
+        {
+            Edges = new ObservableCollection<GraphEdge>
+            {
+                new GraphEdge(),
+                new GraphEdge(),
+                new GraphEdge(),
+                new GraphEdge()
+            };
+        }
+        private void CreateEdges()
+        {
+            if(Points.Count > 1)
+            {
+                for(int i = 0; i < Points.Count-1; i++)
+                {
+                    Edges[i].Point1 = Points[i];
+                    Edges[i].Point2 = Points[i+1];
                 }
             }
         }

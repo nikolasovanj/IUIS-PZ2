@@ -35,8 +35,13 @@ namespace NetworkService.ViewModel
         {
             createListener(); //Povezivanje sa serverskom aplikacijom
             NavCommand = new MyICommand<string>(OnNav);
-
-            Entities = new ObservableCollection<Entity>() { new Entity { ID=1, Name="RTD-001", Type = new EntityType("RTD", "/"), Value=298 } };
+            Entity e = new Entity { ID = 1, Name = "RTD-001", Type = new EntityType("RTD", "/")};
+            e.Value = 336;
+            e.Value = 184;
+            e.Value = 265;
+            e.Value = 276;
+            e.Value = 442;
+            Entities = new ObservableCollection<Entity>() { e };
 
             networkDisplayViewModel = new NetworkDisplayViewModel();
             networkEntitiesViewModel = new NetworkEntitiesViewModel();
@@ -81,11 +86,12 @@ namespace NetworkService.ViewModel
                         {
                             //U suprotnom, server je poslao promenu stanja nekog objekta u sistemu
                             Trace.WriteLine(incomming); //Na primer: "Entitet_1:272"
-                            File.AppendAllText("../../Data/log.txt", $"[{DateTime.Now.ToString("dd/MM/yyyy-HH:mm:ss")}]-{incomming}\n");
                             //################ IMPLEMENTACIJA ####################
                             // Obraditi poruku kako bi se dobile informacije o izmeni
                             // Azuriranje potrebnih stvari u aplikaciji
-
+                            var result = ParseIncomming(incomming);
+                            Entities[result.index].Value=result.value;
+                            File.AppendAllText("../../Data/log.txt", Entities[result.index].ToLog());
                         }
                     }, null);
                 }
@@ -113,6 +119,12 @@ namespace NetworkService.ViewModel
         private void AddToList(Entity entity)
         {
             Entities.Add(entity);
+        }
+
+        private (int index, int value) ParseIncomming(string incomming)
+        {
+            string[] parts = incomming.Split(new char[] {':', '_'});
+            return (int.Parse(parts[1]), int.Parse(parts[2]));
         }
 
     }

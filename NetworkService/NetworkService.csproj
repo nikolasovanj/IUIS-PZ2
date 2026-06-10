@@ -81,6 +81,8 @@
     <Compile Include="Helpers\ValidationErrors.cs" />
     <Compile Include="Model\Entity.cs" />
     <Compile Include="Model\EntityType.cs" />
+    <Compile Include="Model\GraphEdge.cs" />
+    <Compile Include="Model\GraphPoint.cs" />
     <Compile Include="Model\TableFilter.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\MeasurementGraphViewModel.cs" />

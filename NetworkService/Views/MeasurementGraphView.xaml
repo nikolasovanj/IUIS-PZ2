@@ -38,87 +38,57 @@
             Grid.Row="2"
             Grid.Column="1"
             Grid.ColumnSpan="2">
-            <Line 
-                X1="40" Y1="{Binding LastReading[0], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
-                X2="140" Y2="{Binding LastReading[1], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
-                Stroke="Blue"
-                StrokeThickness="4"/>
-            <Ellipse 
-                x:Name="Point1"
-                Height="40" 
-                Width="40" 
-                Fill="Blue" 
-                Canvas.Top="{Binding LastReading[0], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
-                Canvas.Left="20"
-                />
-            <Label
-                Canvas.Left="25"
-                Canvas.Top="{Binding LastReading[0], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
-                Content="{Binding LastReading[0]}" />
-            <Line 
-                X1="140" Y1="{Binding LastReading[1], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
-                X2="240" Y2="{Binding LastReading[2], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
-                Stroke="Blue"
-                StrokeThickness="4"/>
-            <Ellipse 
-                x:Name="Point2"
-                Height="40" 
-                Width="40" 
-                Fill="Blue" 
-                Canvas.Top="{Binding LastReading[1], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
-                Canvas.Left="120"
-                />
-            <Label
-                Canvas.Left="125"
-                Canvas.Top="{Binding LastReading[1], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
-                Content="{Binding LastReading[1]}" />
-            <Line 
-                X1="240" Y1="{Binding LastReading[2], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
-                X2="340" Y2="{Binding LastReading[3], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
-                Stroke="Blue"
-                StrokeThickness="4"/>
-            <Ellipse 
-                x:Name="Point3"
-                Height="40" 
-                Width="40" 
-                Fill="Blue" 
-                Canvas.Top="{Binding LastReading[2], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
-                Canvas.Left="220"
-                />
-            <Label
-                Canvas.Left="225"
-                Canvas.Top="{Binding LastReading[2], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
-                Content="{Binding LastReading[2]}" />
-            <Line 
-                X1="340" Y1="{Binding LastReading[3], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
-                X2="440" Y2="{Binding LastReading[4], Converter={StaticResource GraphConverter}, ConverterParameter=170}"
-                Stroke="Blue"
-                StrokeThickness="4"/>
-            <Ellipse 
-                x:Name="Point4"
-                Height="40" 
-                Width="40" 
-                Fill="Blue" 
-                Canvas.Top="{Binding LastReading[3], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
-                Canvas.Left="320"
-                />
-            <Label
-                Canvas.Left="325"
-                Canvas.Top="{Binding LastReading[3], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
-                Content="{Binding LastReading[3]}" />
+            <ItemsControl ItemsSource="{Binding Path=Edges}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-            <Ellipse 
-                x:Name="Point5"
-                Height="40" 
-                Width="40" 
-                Fill="Blue" 
-                Canvas.Top="{Binding LastReading[4], Converter={StaticResource GraphConverter}, ConverterParameter=150}" 
-                Canvas.Left="420"
-                />
-            <Label
-                Canvas.Left="425"
-                Canvas.Top="{Binding LastReading[4], Converter={StaticResource GraphConverter}, ConverterParameter=160}"
-                Content="{Binding LastReading[4]}" />
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Line 
+                            Stroke="Black" 
+                            StrokeThickness="4"
+                            X1="{Binding Path=Point1.X, Converter={StaticResource GraphConverter}, ConverterParameter=20}"
+                            X2="{Binding Path=Point2.X, Converter={StaticResource GraphConverter}, ConverterParameter=20}"
+                            Y1="{Binding Path=Point1.Y, Converter={StaticResource GraphConverter}, ConverterParameter=20}"
+                            Y2="{Binding Path=Point2.Y, Converter={StaticResource GraphConverter}, ConverterParameter=20}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding Path=Points}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemContainerStyle>
+                    <Style>
+                        <Setter Property="Canvas.Left" Value="{Binding Path=X}" />
+                        <Setter Property="Canvas.Top" Value="{Binding Path=Y}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid
+                            Width="40" Height="40">
+                            <Ellipse 
+                                 Fill="DodgerBlue"
+                                 Stroke="Black"
+                                 StrokeThickness="2"/>
+                            <TextBlock 
+                                Text="{Binding Path=Value}" 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="20"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
         </Canvas>
 
