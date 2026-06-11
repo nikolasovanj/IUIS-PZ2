@@ -12,7 +12,7 @@ namespace NetworkService.Model
         private int _value;
         private double _x;
         private double _y;
-
+        private DateTime _time;
         public GraphPoint() { }
 
         public int Value
@@ -48,6 +48,18 @@ namespace NetworkService.Model
                 {
                     this._y = value;
                     OnPropertyChanged(nameof(Y));
+                }
+            }
+        }
+        public DateTime Time
+        {
+            get { return _time; }
+            set
+            {
+                if(this._time != value)
+                {
+                    _time = value;
+                    OnPropertyChanged(nameof(Time));
                 }
             }
         }

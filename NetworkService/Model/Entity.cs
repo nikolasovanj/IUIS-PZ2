@@ -10,7 +10,9 @@ namespace NetworkService.Model
         private string name;
         private EntityType type;
         private int value;
+        private DateTime timeStamp;
         private int[] lastValues = new int[5];
+        private DateTime[] lastTimeStamps = new DateTime[5];
 
         public Entity()
         {
@@ -57,15 +59,27 @@ namespace NetworkService.Model
             get { return value; }
             set
             {
-                if (this.value != value)
+                this.value = value;
+                AddValue(this.value);
+                OnPropertyChanged(nameof(Value));
+                
+            }
+        }
+        public DateTime TimeStamp
+        {
+            get { return timeStamp; }
+            set
+            {
+                if(timeStamp != value)
                 {
-                    this.value = value;
-                    AddValue(this.value);
-                    OnPropertyChanged(nameof(Value));
+                    timeStamp = value;
+                    AddTimeStamp(value);
+                    OnPropertyChanged(nameof(TimeStamp));
                 }
             }
         }
         public int[] LastValues { get { return lastValues; } }
+        public DateTime[] LastTimeStamps { get { return lastTimeStamps; } }
         protected override void ValidateSelf()
         {
             if (string.IsNullOrWhiteSpace(this.name))
@@ -89,21 +103,49 @@ namespace NetworkService.Model
                 {
                     lastValues[i] = lastValues[i + 1];
                 }
-                lastValues[lastValues.Length-1] = value;
+                lastValues[lastValues.Length - 1] = value;
             }
-            for (int i = 0; i < lastValues.Length; i++)
+            else
             {
-                if (lastValues[i] == 0)
+
+                for (int i = 0; i < lastValues.Length; i++)
                 {
-                    lastValues[i] = value;
-                    break;
+                    if (lastValues[i] == 0)
+                    {
+                        lastValues[i] = value;
+                        break;
+                    }
+
+                }   
+            }
+        }
+        private void AddTimeStamp(DateTime timeStamp)
+        {
+            if (lastTimeStamps.All(v => v != null))
+            {
+                for (int i = 0; i < lastTimeStamps.Length - 1; i++)
+                {
+                    lastTimeStamps[i] = lastTimeStamps[i + 1];
                 }
-                 
-            }   
+                lastTimeStamps[lastTimeStamps.Length - 1] = timeStamp;
+            }
+            else
+            {
+
+                for (int i = 0; i < lastTimeStamps.Length; i++)
+                {
+                    if (lastTimeStamps[i] == null)
+                    {
+                        lastTimeStamps[i] = timeStamp;
+                        break;
+                    }
+
+                }
+            }
         }
         public string ToLog()
         {
-            return $"{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")} [{Type.Name}] {name} Got value: {value}\n";
+            return $"{TimeStamp.ToString("dd/MM/yyyy HH:mm:ss")} [{Type.Name}] {name} Got value: {value}\n";
         }
     }
 }

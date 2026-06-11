@@ -6,16 +6,27 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 
 namespace NetworkService.ViewModel
 {
     public class MainWindowViewModel : BindableBase
     {
+        private TcpClient tcpClient;
+        private NetworkStream stream;
         public MyICommand<string> NavCommand { get; private set; }
 
         public static ObservableCollection<Entity> Entities { get; set; }
+        public static readonly string AddToken = "Add";
+        public static readonly string RemoveToken = "Remove";
+        public static ObservableCollection<EntityType> Types { get; } = new ObservableCollection<EntityType>
+        {
+            new EntityType("RTD", "../../Data/Images/RTD.png"),
+            new EntityType("TermoSprega", "../../Data/Images/TermoSprega.png")
+        };
         private int count = 1; // Inicijalna vrednost broja objekata u sistemu
                                // ######### ZAMENITI stvarnim brojem elemenata
                                //           zavisno od broja entiteta u listi
@@ -35,20 +46,36 @@ namespace NetworkService.ViewModel
         {
             createListener(); //Povezivanje sa serverskom aplikacijom
             NavCommand = new MyICommand<string>(OnNav);
-            Entity e = new Entity { ID = 1, Name = "RTD-001", Type = new EntityType("RTD", "/")};
+            Entity e = new Entity { ID = 1, Name = "RTD-001", Type = Types[0] };
+            Entity e1 = new Entity { ID = 2, Name = "TSP-001", Type = Types[1] };
+            Entity e2 = new Entity { ID = 3, Name = "RTD-002", Type = Types[0] };
+            Entity e3 = new Entity { ID = 4, Name = "TSP-002", Type = Types[1] };
             e.Value = 336;
+            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 4);
             e.Value = 184;
+            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 7);
             e.Value = 265;
+            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 11);
             e.Value = 276;
+            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 14);
             e.Value = 442;
-            Entities = new ObservableCollection<Entity>() { e };
+            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 18);
+            e1.Value = 206;
+            e1.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 21);
+            e2.Value = 302;
+            e2.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 25);
+            e3.Value = 442;
+            e3.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 31);
+            Entities = new ObservableCollection<Entity>() { e, e1, e2, e3 };
+            count = Entities.Count;
 
             networkDisplayViewModel = new NetworkDisplayViewModel();
             networkEntitiesViewModel = new NetworkEntitiesViewModel();
             measurementGraphViewModel = new MeasurementGraphViewModel();
             currentViewModel = networkEntitiesViewModel;
 
-            Messenger.Default.Register<Entity>(this, AddToList);
+            Messenger.Default.Register<Entity>(this, AddToken, AddToList);
+            Messenger.Default.Register<Entity>(this, RemoveToken, RemoveFromList);
         }
 
         private void createListener()
@@ -76,9 +103,9 @@ namespace NetworkService.ViewModel
                         {
                             //Response
                             /* Umesto sto se ovde salje count.ToString(), potrebno je poslati 
-                             * duzinu liste koja sadrzi sve objekte pod monitoringom, odnosno
-                             * njihov ukupan broj (NE BROJATI OD NULE, VEC POSLATI UKUPAN BROJ)
-                             * */
+                                * duzinu liste koja sadrzi sve objekte pod monitoringom, odnosno
+                                * njihov ukupan broj (NE BROJATI OD NULE, VEC POSLATI UKUPAN BROJ)
+                                * */
                             Byte[] data = System.Text.Encoding.ASCII.GetBytes(count.ToString());
                             stream.Write(data, 0, data.Length);
                         }
@@ -86,11 +113,12 @@ namespace NetworkService.ViewModel
                         {
                             //U suprotnom, server je poslao promenu stanja nekog objekta u sistemu
                             Trace.WriteLine(incomming); //Na primer: "Entitet_1:272"
-                            //################ IMPLEMENTACIJA ####################
-                            // Obraditi poruku kako bi se dobile informacije o izmeni
-                            // Azuriranje potrebnih stvari u aplikaciji
+                                                        //################ IMPLEMENTACIJA ####################
+                                                        // Obraditi poruku kako bi se dobile informacije o izmeni
+                                                        // Azuriranje potrebnih stvari u aplikaciji
                             var result = ParseIncomming(incomming);
-                            Entities[result.index].Value=result.value;
+                            Entities[result.index].Value = result.value;
+                            Entities[result.index].TimeStamp = DateTime.Now;
                             File.AppendAllText("../../Data/log.txt", Entities[result.index].ToLog());
                         }
                     }, null);
@@ -119,8 +147,13 @@ namespace NetworkService.ViewModel
         private void AddToList(Entity entity)
         {
             Entities.Add(entity);
+            count++;
         }
-
+        private void RemoveFromList(Entity entity)
+        {
+            Entities.Remove(entity);
+            count--;
+        }
         private (int index, int value) ParseIncomming(string incomming)
         {
             string[] parts = incomming.Split(new char[] {':', '_'});

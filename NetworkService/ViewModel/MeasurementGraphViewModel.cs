@@ -33,13 +33,13 @@ namespace NetworkService.ViewModel
                         _typeCount++;
                     }
                 }
-                _typeCount /= Entities.Count;
-                _typeCount *= 200;
             }
             CurrentEntity = entities[0];
             CurrentEntity.PropertyChanged += ValueChanged;
+            PropertyChanged += EntityChanged;
+            PropertyChanged += ValueChanged;
             InitializePoints();
-            LoadReading(currentEntity.LastValues);
+            LoadReading(currentEntity.LastValues, currentEntity.LastTimeStamps);
             InitializeEdges();
             CreateEdges();
         }
@@ -56,13 +56,13 @@ namespace NetworkService.ViewModel
                         _typeCount++;
                     }
                 }
-                _typeCount /= Entities.Count;
-                _typeCount *= 200;
             }
             CurrentEntity = new Entity();
             CurrentEntity.PropertyChanged += ValueChanged;
+            PropertyChanged += EntityChanged;
+            PropertyChanged += ValueChanged;
             InitializePoints();
-            LoadReading(currentEntity.LastValues);
+            LoadReading(currentEntity.LastValues, currentEntity.LastTimeStamps);
             InitializeEdges();
             CreateEdges();
 
@@ -77,8 +77,12 @@ namespace NetworkService.ViewModel
             {
                 if (currentEntity != value)
                 {
+                    if(CurrentEntity != null)
+                    {
+                        CurrentEntity.PropertyChanged -= ValueChanged;
+                    }
                     currentEntity = value;
-                    OnPropertyChanged("CurrentEntity");
+                    OnPropertyChanged(nameof(CurrentEntity));
                 }
             }
         }
@@ -110,11 +114,18 @@ namespace NetworkService.ViewModel
                 }
             }
         }
+        private void EntityChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(CurrentEntity))
+            {
+                CurrentEntity.PropertyChanged += ValueChanged;
+            }
+        }
         private void ValueChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Entity.Value))
+            if (e.PropertyName == nameof(Entity.Value) || e.PropertyName == nameof(Entity.TimeStamp) || e.PropertyName == nameof(CurrentEntity))
             {
-                LoadReading(currentEntity.LastValues);
+                LoadReading(currentEntity.LastValues, currentEntity.LastTimeStamps);
             }
         }
         private void InitializePoints()
@@ -128,15 +139,16 @@ namespace NetworkService.ViewModel
                 new GraphPoint()
             };
         }
-        private void LoadReading(int[] readings)
+        private void LoadReading(int[] readings, DateTime[] times)
         {
-            if(readings.Length > 0)
+            if(readings.Length > 0 && times.Length > 0)
             {
                 for (int i = 0; i < readings.Length; i++)
                 {
                     Points[i].Value = readings[i]; 
                     Points[i].X = i * 100 + 20;
                     Points[i].Y = 250 - ((readings[i] - 150) * 5 / 6);
+                    Points[i].Time = times[i];
                 }
             }
         }

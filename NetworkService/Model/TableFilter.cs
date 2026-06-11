@@ -18,8 +18,8 @@ namespace NetworkService.Model
         {
             _type = null;
             _id = null;
-            _idFilter = null;
-            _valueFilter = null;
+            _idFilter = Model.IDFilter.Equal;
+            _valueFilter = Model.ValueFilter.All;
         }
         public EntityType Type 
         { 

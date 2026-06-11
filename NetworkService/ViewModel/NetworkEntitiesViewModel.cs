@@ -30,12 +30,8 @@ namespace NetworkService.ViewModel
             AddNewEntity = new MyICommand(OnAdd);
             DeleteEntity = new MyICommand(OnDelete);
             ResetFilter = new MyICommand(OnResetFilter);
-            Types = new ObservableCollection<EntityType>()
-            {
-                new EntityType("RTD", "/"),
-                new EntityType("TermoSprega", "/")
-            };
             Entities = new ObservableCollection<Entity>();
+            Types = MainWindowViewModel.Types;
             FilteredEntities = Entities;
             _filter.PropertyChanged += FilterChanged;
         }
@@ -44,11 +40,7 @@ namespace NetworkService.ViewModel
             AddNewEntity = new MyICommand(OnAdd);
             DeleteEntity = new MyICommand(OnDelete);
             ResetFilter = new MyICommand(OnResetFilter);
-            Types = new ObservableCollection<EntityType>()
-            {
-                new EntityType("RTD", "/"),
-                new EntityType("TermoSprega", "/")
-            };
+            Types = MainWindowViewModel.Types;
             Entities = entities;
             FilteredEntities = entities;
             _filter.PropertyChanged += FilterChanged;
@@ -114,7 +106,7 @@ namespace NetworkService.ViewModel
                     Name = currentEntity.Name,
                     Type = currentEntity.Type
                 };
-                Messenger.Default.Send<Entity>(entity);
+                Messenger.Default.Send<Entity>(entity, MainWindowViewModel.AddToken);
                 CurrentEntity.ID = 0;
                 CurrentEntity.Name = string.Empty;
                 CurrentEntity.Type = null;
@@ -122,38 +114,38 @@ namespace NetworkService.ViewModel
         }
         private void OnDelete()
         {
-            Entities.Remove(selectedEntity);
+            Messenger.Default.Send<Entity>(selectedEntity, MainWindowViewModel.RemoveToken);
         }
         private void OnResetFilter()
         {
-            Filter = new TableFilter();
+            Filter.IDFilter = IDFilter.Equal;
+            Filter.ID = null;
+            Filter.ValueFilter = ValueFilter.All;
+            Filter.Type = null;
             FilteredEntities = Entities;
         }
         private void FilterChanged(object sender, PropertyChangedEventArgs args)
         {   
             FilteredEntities = Entities;
-            Trace.WriteLine(args.PropertyName);
             if(Filter.Type != null)
             {
                 FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.Type.Name.Equals(Filter.Type.Name)));
             }
-            if (Filter.ID != null && Filter.ID > 0)
-            {
-                if (Filter.IDFilter != null)
-                { 
-                    Trace.WriteLine(Filter.IDFilter.ToString());
-                    switch(Filter.IDFilter)
-                    {
-                        case IDFilter.Lower:
-                            FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID < Filter.ID));
-                            break;
-                        case IDFilter.Higher:
-                            FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID > Filter.ID));
-                            break;
-                        case IDFilter.Equal:
-                            FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID == Filter.ID));
-                            break;
-                    }
+            if (Filter.ID != null && Filter.ID > 0 && Filter.IDFilter != null)
+            { 
+                Trace.WriteLine(Filter.IDFilter.ToString());
+                switch(Filter.IDFilter)
+                {
+                    case IDFilter.Lower:
+                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID < Filter.ID));
+                        break;
+                    case IDFilter.Higher:
+                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID > Filter.ID));
+                        break;
+                    case IDFilter.Equal:
+                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID == Filter.ID));
+                        break;
+                    
                 }
             }
             if (Filter.ValueFilter != null)

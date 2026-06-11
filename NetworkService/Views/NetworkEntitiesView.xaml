@@ -130,13 +130,13 @@
                     Orientation="Horizontal">
                     <RadioButton 
                         Content=">" 
-                        IsChecked="{Binding Filter.IDFilter, Converter={StaticResource IDRadioConverter}, ConverterParameter=Higher}"/>
+                        IsChecked="{Binding Filter.IDFilter, Converter={StaticResource IDRadioConverter}, ConverterParameter=Higher, Mode=TwoWay}"/>
                     <RadioButton 
                         Content="&lt;" 
-                        IsChecked="{Binding Filter.IDFilter, Converter={StaticResource IDRadioConverter}, ConverterParameter=Lower}"/>
+                        IsChecked="{Binding Filter.IDFilter, Converter={StaticResource IDRadioConverter}, ConverterParameter=Lower, Mode=TwoWay}"/>
                     <RadioButton 
                         Content="=" 
-                        IsChecked="{Binding Filter.IDFilter, Converter={StaticResource IDRadioConverter}, ConverterParameter=Equal}"/>
+                        IsChecked="{Binding Filter.IDFilter, Converter={StaticResource IDRadioConverter}, ConverterParameter=Equal, Mode=TwoWay}"/>
                     <TextBox 
                         Height="20"
                         Width="80"
@@ -152,13 +152,13 @@
                 <Label>Range</Label>
                 <RadioButton
                     Content="All"
-                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=All}" />
+                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=All, Mode=TwoWay}" />
                 <RadioButton
                     Content="In range"
-                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=InsideBounds}" />
+                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=InsideBounds, Mode=TwoWay}" />
                 <RadioButton
                     Content="Out of range"
-                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=OutOfBounds }" />
+                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=OutOfBounds, Mode=TwoWay }" />
             </StackPanel>
             <Button 
                 Grid.Row="2" 
@@ -190,6 +190,9 @@
                 <DataGridTextColumn
                     Header="Value"
                     Binding="{Binding Path=Value}" />
+                <DataGridTextColumn
+                    Header="Time"
+                    Binding="{Binding Path=TimeStamp}" />
             </DataGrid.Columns>
         </DataGrid>
         <Button 

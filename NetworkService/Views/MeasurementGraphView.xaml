@@ -9,6 +9,10 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <converter:ReadingToGraphPositionConverter x:Key="GraphConverter"/>
+        <converter:ReadingToGraphTimeConverter x:Key="TimeConverter" />
+        <converter:TypeCountToGraphWidthConverter x:Key="TypeCountConverter" />
+        <converter:GraphPointColorConverter x:Key="ColorConverter" />
+        <converter:GraphVisibilityConverter x:Key="VisibilityConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -77,7 +81,7 @@
                         <Grid
                             Width="40" Height="40">
                             <Ellipse 
-                                 Fill="DodgerBlue"
+                                 Fill="{Binding Value, Converter={StaticResource ColorConverter}}"
                                  Stroke="Black"
                                  StrokeThickness="2"/>
                             <TextBlock 
@@ -89,24 +93,105 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            <Line 
+                X1="0"
+                Y1="300"
+                X2="480"
+                Y2="300"
+                Stroke="Black"
+                StrokeThickness="2"/>
+            <ItemsControl ItemsSource="{Binding Points}">
 
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding X}" />
+                        <Setter Property="Canvas.Top" Value="310" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock 
+                            Text="{Binding Time, Converter={StaticResource TimeConverter}}"
+                            Width="50"
+                            TextAlignment="Center"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Grid
+                Visibility="{Binding CurrentEntity.LastValues, Converter={StaticResource VisibilityConverter}}">
+                <Rectangle
+                Height="400"
+                Width="480"
+                Fill="White"/>
+                <TextBlock 
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="30">
+                    Not enough data yet...
+                </TextBlock>
+            </Grid>
         </Canvas>
-
-        <Rectangle
-            Grid.Column="3"
+        <Grid
             Grid.Row="2"
-            Height="60"
-            Fill="Blue"
-            Width="200"/>
-        <Rectangle
-            Grid.Column="3"
-            Grid.Row="2"
-            Height="60"
-            Fill="Yellow"
-            Margin="17.5"
-            HorizontalAlignment="Left"
-            Width="{Binding Path=TypeCount}"/>
+            Grid.Column="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
 
+            <Canvas
+                x:Name="RatioCanvas"
+                Grid.Row="1">
+                <Rectangle
+                    Width="240"
+                    Height="72"
+                    HorizontalAlignment="Right"
+                    Fill="Goldenrod"/>
+                <Rectangle
+                    Width="{Binding TypeCount, Converter={StaticResource TypeCountConverter}}"
+                    Height="72"
+                    HorizontalAlignment="Left"
+                    Fill="CadetBlue"/>
+            </Canvas>
+            <StackPanel
+                Grid.Row="2">
+                <StackPanel
+                    Height="20">
+                    <Canvas>
+                        
+                    </Canvas>
+                </StackPanel>
+                <StackPanel 
+                    Orientation="Horizontal"
+                    Height="40">
+                    <Rectangle
+                        Height="10"
+                        Width="10"
+                        Fill="CadetBlue"/>
+                    <TextBlock
+                        VerticalAlignment="Center">RTD</TextBlock>
+                </StackPanel>
+                <StackPanel 
+                    Orientation="Horizontal"
+                    Height="40">
+                    <Rectangle
+                        Height="10"
+                        Width="10"
+                        Fill="Goldenrod"/>
+                    <TextBlock
+                        VerticalAlignment="Center">TermoSprega</TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+        
 
 
     </Grid>

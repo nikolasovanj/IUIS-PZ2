@@ -74,7 +74,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Helpers\BindableBase.cs" />
+    <Compile Include="Helpers\Converters\GraphPointColorConverter.cs" />
+    <Compile Include="Helpers\Converters\GraphVisibilityConverter.cs" />
     <Compile Include="Helpers\Converters\RadioConverter.cs" />
+    <Compile Include="Helpers\Converters\ReadingToGraphTimeConverter.cs" />
+    <Compile Include="Helpers\Converters\TypeCountToGraphWidthConverter.cs" />
     <Compile Include="Helpers\MyICommand.cs" />
     <Compile Include="Helpers\Converters\ReadingToGraphPositionConverter.cs" />
     <Compile Include="Helpers\ValidationBase.cs" />
@@ -149,9 +153,15 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Data\Images\RTD.png" />
+    <Resource Include="Data\Images\TermoSprega.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Data\log.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Data\Images\Warning.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
