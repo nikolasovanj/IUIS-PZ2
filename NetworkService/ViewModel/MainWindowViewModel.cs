@@ -5,6 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
@@ -15,17 +16,37 @@ namespace NetworkService.ViewModel
 {
     public class MainWindowViewModel : BindableBase
     {
-        private TcpClient tcpClient;
-        private NetworkStream stream;
         public MyICommand<string> NavCommand { get; private set; }
 
         public static ObservableCollection<Entity> Entities { get; set; }
         public static readonly string AddToken = "Add";
         public static readonly string RemoveToken = "Remove";
+        public static ObservableCollection<DisplayItem> Slots { get; set; } 
+            = new ObservableCollection<DisplayItem>()
+            {
+                new DisplayItem(){X=0,  Y=0},
+                new DisplayItem(){X=170,Y=0},
+                new DisplayItem(){X=340,Y=0},
+                new DisplayItem(){X=510,Y=0},
+                new DisplayItem(){X=0,  Y=130},
+                new DisplayItem(){X=170,Y=130},
+                new DisplayItem(){X=340,Y=130},
+                new DisplayItem(){X=510,Y=130},
+                new DisplayItem(){X=0,  Y=260},
+                new DisplayItem(){X=170,Y=260},
+                new DisplayItem(){X=340,Y=260},
+                new DisplayItem(){X=510,Y=260},
+                new DisplayItem(){X=0,  Y=390},
+                new DisplayItem(){X=170,Y=390},
+                new DisplayItem(){X=340,Y=390},
+                new DisplayItem(){X=510,Y=390}
+
+            };
+        public static ObservableCollection<EntityByType> EntitiesByType { get; set; } 
         public static ObservableCollection<EntityType> Types { get; } = new ObservableCollection<EntityType>
         {
             new EntityType("RTD", "../../Data/Images/RTD.png"),
-            new EntityType("TermoSprega", "../../Data/Images/TermoSprega.png")
+            new EntityType("TC", "../../Data/Images/TermoSprega.png")
         };
         private int count = 1; // Inicijalna vrednost broja objekata u sistemu
                                // ######### ZAMENITI stvarnim brojem elemenata
@@ -68,7 +89,6 @@ namespace NetworkService.ViewModel
             e3.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 31);
             Entities = new ObservableCollection<Entity>() { e, e1, e2, e3 };
             count = Entities.Count;
-
             networkDisplayViewModel = new NetworkDisplayViewModel();
             networkEntitiesViewModel = new NetworkEntitiesViewModel();
             measurementGraphViewModel = new MeasurementGraphViewModel();

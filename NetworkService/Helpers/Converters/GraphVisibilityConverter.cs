@@ -14,6 +14,10 @@ namespace NetworkService.Helpers.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             Visibility ret = ((int[])value).Any(i => i == 0) ? Visibility.Visible : Visibility.Hidden;
+            if(parameter != null)
+            {
+                ret = bool.Parse((string)parameter) ? ret == Visibility.Visible ? Visibility.Hidden : Visibility.Visible : ret;  
+            }
             return ret;
         }
 

@@ -16,6 +16,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="3*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="4*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -92,6 +93,7 @@
             Command="{Binding AddNewEntity}"/>
         <Grid
             Grid.Row="2"
+            Grid.RowSpan="2"
             Grid.Column="1"
             Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
@@ -170,7 +172,7 @@
                 Command="{Binding ResetFilter}"/>
         </Grid>
         <DataGrid
-            Grid.Row="3"
+            Grid.Row="4"
             Grid.Column="1"
             Grid.ColumnSpan="3"
             AutoGenerateColumns="False"
@@ -180,24 +182,29 @@
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Header="ID"
+                    Width="100"
                     Binding="{Binding Path=ID}" />
                 <DataGridTextColumn
                     Header="Name"
+                    Width="100"
                     Binding="{Binding Path=Name}" />
                 <DataGridTextColumn
                     Header="Type"
+                    Width="100"
                     Binding="{Binding Path=Type.Name}" />
                 <DataGridTextColumn
                     Header="Value"
+                    Width="100"
                     Binding="{Binding Path=Value}" />
                 <DataGridTextColumn
                     Header="Time"
+                    FontSize="20"
                     Binding="{Binding Path=TimeStamp}" />
             </DataGrid.Columns>
         </DataGrid>
         <Button 
             Grid.Column="3"
-            Grid.Row="2"
+            Grid.Row="3"
             Height="30"
             Width="160"
             VerticalAlignment="Bottom"
