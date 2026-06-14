@@ -17,7 +17,16 @@ namespace NetworkService.Model
         public Entity()
         {
         }
-
+        public Entity(Entity entity)
+        {
+            id = entity.ID;
+            name = entity.Name;
+            type = entity.Type;
+            value = entity.Value;
+            timeStamp = entity.TimeStamp;
+            lastValues = entity.LastValues;
+            lastTimeStamps = entity.LastTimeStamps;
+        }
         public int ID
         {
             get { return id; }

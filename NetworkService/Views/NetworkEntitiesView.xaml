@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NetworkService.Views"
              xmlns:converter="clr-namespace:NetworkService.Helpers.Converters"
+             xmlns:fa5="http://schemas.fontawesome.com/icons/"
+             xmlns:viewModel="clr-namespace:NetworkService.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -162,44 +164,60 @@
                     Content="Out of range"
                     IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=OutOfBounds, Mode=TwoWay }" />
             </StackPanel>
-            <Button 
+            <StackPanel
                 Grid.Row="2" 
                 Grid.Column="1"
-                Height="20"
-                Width="100"
-                Content="Reset"
-                HorizontalAlignment="Right"
-                Command="{Binding ResetFilter}"/>
+                Orientation="Horizontal">
+                <Button 
+                    Height="20"
+                    Width="70"
+                    Content="Apply"
+                    HorizontalAlignment="Left"
+                    Margin="10 0 15 0"
+                    Command="{Binding SetFilter}"/>
+                <Button 
+                    Height="20"
+                    Width="70"
+                    Content="Reset"
+                    HorizontalAlignment="Right"
+                    Command="{Binding ResetFilter}"/>
+            </StackPanel>
         </Grid>
         <DataGrid
             Grid.Row="4"
             Grid.Column="1"
             Grid.ColumnSpan="3"
+            CanUserResizeColumns="False"
+            CanUserReorderColumns="False"
+            CanUserResizeRows="False"
+            HeadersVisibility="Column"
             AutoGenerateColumns="False"
             CanUserAddRows="False"
+            HorizontalScrollBarVisibility="Disabled"
+            IsReadOnly="True"
             ItemsSource="{Binding Path=FilteredEntities}"
             SelectedItem="{Binding SelectedEntity, Mode=TwoWay}">
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Header="ID"
-                    Width="100"
+                    Width="105"
                     Binding="{Binding Path=ID}" />
                 <DataGridTextColumn
                     Header="Name"
-                    Width="100"
+                    Width="140"
                     Binding="{Binding Path=Name}" />
                 <DataGridTextColumn
                     Header="Type"
-                    Width="100"
+                    Width="130"
                     Binding="{Binding Path=Type.Name}" />
                 <DataGridTextColumn
                     Header="Value"
-                    Width="100"
+                    Width="120"
                     Binding="{Binding Path=Value}" />
                 <DataGridTextColumn
                     Header="Time"
                     FontSize="20"
-                    Binding="{Binding Path=TimeStamp}" />
+                    Binding="{Binding Path=TimeStamp, StringFormat={}{0:dd/MM/yyy HH:mm:ss}}" />
             </DataGrid.Columns>
         </DataGrid>
         <Button 
@@ -211,5 +229,25 @@
             Margin="0 0 0 4"
             Content="Delete"
             Command="{Binding DeleteEntity}"/>
+        <StackPanel
+            Grid.Row="5"
+            Grid.Column="4"
+            Grid.ColumnSpan="2"
+            Orientation="Horizontal"
+            Margin="5,5,5,2">
+
+            <Button
+                Width="80"
+                Margin="0,0,4,0"
+                Command="{Binding Undo}"
+                ToolTip="Undo last action (Ctrl+Z)">
+                <StackPanel Orientation="Horizontal">
+                    <fa5:SvgAwesome Height="13" Foreground="Gray" Icon="Solid_UndoAlt" />
+                    <TextBlock Margin="5,0,0,0" Text="Undo" />
+                </StackPanel>
+            </Button>
+
+            
+        </StackPanel>
     </Grid>
 </UserControl>

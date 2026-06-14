@@ -116,7 +116,7 @@ namespace NetworkService.ViewModel
         }
         private void EntityChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(CurrentEntity))
+            if (e.PropertyName == nameof(CurrentEntity) && CurrentEntity != null)
             {
                 CurrentEntity.PropertyChanged += ValueChanged;
             }

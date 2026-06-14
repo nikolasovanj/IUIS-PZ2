@@ -14,7 +14,10 @@ namespace NetworkService.ViewModel
     {
         public MyICommand AddNewEntity { get; set; }
         public MyICommand DeleteEntity { get; set; }
+        public MyICommand Undo { get; set; }
+        public MyICommand Redo { get; set; }
         public MyICommand ResetFilter { get; set; }
+        public MyICommand SetFilter { get; set; }
         private Entity currentEntity = new Entity();
         private Entity selectedEntity = new Entity();
         public ObservableCollection<EntityType> Types { get; }
@@ -25,25 +28,37 @@ namespace NetworkService.ViewModel
         private readonly int LowLimit = 250;
         private TableFilter _filter = new TableFilter();
 
+        private CommandStack History;
+
         public NetworkEntitiesViewModel()
         {
             AddNewEntity = new MyICommand(OnAdd);
             DeleteEntity = new MyICommand(OnDelete);
             ResetFilter = new MyICommand(OnResetFilter);
-            Entities = new ObservableCollection<Entity>();
+            SetFilter = new MyICommand(OnSetFilter);
+            Undo = new MyICommand(OnUndo, () =>  History.CanUndo);
+            Redo = new MyICommand(OnRedo, () =>  History.CanRedo);
+            History = new CommandStack();
+            Entities = MainWindowViewModel.Entities;
             Types = MainWindowViewModel.Types;
             FilteredEntities = Entities;
-            _filter.PropertyChanged += FilterChanged;
+            //this.PropertyChanged += FilterChanged;
+            //_filter.PropertyChanged += FilterChanged;
         }
         public NetworkEntitiesViewModel(ObservableCollection<Entity> entities)
         {
             AddNewEntity = new MyICommand(OnAdd);
             DeleteEntity = new MyICommand(OnDelete);
             ResetFilter = new MyICommand(OnResetFilter);
+            SetFilter = new MyICommand(OnSetFilter);
+            Undo = new MyICommand(OnUndo, () => History.CanUndo);
+            Redo = new MyICommand(OnRedo, () => History.CanRedo);
+            History = new CommandStack();
             Types = MainWindowViewModel.Types;
             Entities = entities;
             FilteredEntities = entities;
-            _filter.PropertyChanged += FilterChanged;
+            //this.PropertyChanged += FilterChanged;
+            //_filter.PropertyChanged += FilterChanged;
         }
 
         public Entity CurrentEntity
@@ -54,7 +69,7 @@ namespace NetworkService.ViewModel
                 if (currentEntity != value)
                 {
                     currentEntity = value;
-                    OnPropertyChanged("CurrentEntity");
+                    OnPropertyChanged(nameof(CurrentEntity));
                 }
             }
         }
@@ -66,7 +81,7 @@ namespace NetworkService.ViewModel
                 if (selectedEntity != value)
                 {
                     selectedEntity = value;
-                    OnPropertyChanged("SelectedEntity");
+                    OnPropertyChanged(nameof(SelectedEntity));
                 }
             }
         }
@@ -77,8 +92,13 @@ namespace NetworkService.ViewModel
             {
                 if(_filter != value)
                 {
+                    //if(_filter != null)
+                    //{
+                    //    _filter.PropertyChanged -= FilterChanged;
+                    //}
                     _filter = value;
-                    OnPropertyChanged("Filter");
+                    //_filter.PropertyChanged += FilterChanged;
+                    OnPropertyChanged(nameof(Filter));
                 }
             }
         }
@@ -106,51 +126,95 @@ namespace NetworkService.ViewModel
                     Name = currentEntity.Name,
                     Type = currentEntity.Type
                 };
-                Messenger.Default.Send<Entity>(entity, MainWindowViewModel.AddToken);
+                Entities.Add(entity);
+                //Messenger.Default.Send<Entity>(entity, MainWindowViewModel.AddToken);
                 CurrentEntity.ID = 0;
                 CurrentEntity.Name = string.Empty;
                 CurrentEntity.Type = null;
+                var undoCmd = new MyICommand(
+                    () => { Entities.Add(entity); },
+                    () => { Entities.Remove(entity); }
+                    );
+                History.AddCommand(undoCmd);
+                Refresh();
             }
         }
         private void OnDelete()
         {
-            Messenger.Default.Send<Entity>(selectedEntity, MainWindowViewModel.RemoveToken);
+            Entity toDelete = selectedEntity;
+            Entities.Remove(selectedEntity);
+            //Messenger.Default.Send<Entity>(selectedEntity, MainWindowViewModel.RemoveToken);
+            var undoCmd = new MyICommand(
+                () => { Entities.Remove(toDelete); },
+                () => { Entities.Add(toDelete); }
+                );
+            History.AddCommand(undoCmd);
+            Refresh();
         }
         private void OnResetFilter()
         {
-            Filter.IDFilter = IDFilter.Equal;
-            Filter.ID = null;
-            Filter.ValueFilter = ValueFilter.All;
-            Filter.Type = null;
+            TableFilter oldFilter = new TableFilter(Filter);
+            Filter.Clear();
             FilteredEntities = Entities;
+            var undoCmd = new MyICommand(
+                () => { Filter.Clear(); FilteredEntities = Entities; },
+                () => { Filter = oldFilter; ApplyFilter(oldFilter); }    
+            );
+            History.AddCommand(undoCmd);
+            Refresh();
         }
-        private void FilterChanged(object sender, PropertyChangedEventArgs args)
-        {   
+        private void OnSetFilter()
+        {
             FilteredEntities = Entities;
-            if(Filter.Type != null)
+            TableFilter oldFilter = new TableFilter(Filter);
+            ApplyFilter(Filter);
+            var undoCmd = new MyICommand(
+                () => { Filter = oldFilter; ApplyFilter(oldFilter); },
+                () => { Filter.Clear(); FilteredEntities = Entities; }
+                );
+            History.AddCommand(undoCmd);
+            Refresh();
+        }
+        private void OnUndo()
+        {
+            History.Undo();
+            Refresh();
+        }
+        private void OnRedo()
+        {
+            History.Redo();
+            Refresh();
+        }
+        private void Refresh()
+        {
+            Undo.RaiseCanExecuteChanged();
+            Redo.RaiseCanExecuteChanged();
+        }
+        private void ApplyFilter(TableFilter filter)
+        {
+            if (filter.Type != null)
             {
-                FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.Type.Name.Equals(Filter.Type.Name)));
+                FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.Type.Name.Equals(filter.Type.Name)));
             }
-            if (Filter.ID != null && Filter.ID > 0 && Filter.IDFilter != null)
-            { 
-                Trace.WriteLine(Filter.IDFilter.ToString());
-                switch(Filter.IDFilter)
+            if (filter.ID != null && filter.ID > 0 && filter.IDFilter != null)
+            {
+                switch (filter.IDFilter)
                 {
                     case IDFilter.Lower:
-                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID < Filter.ID));
+                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID < filter.ID));
                         break;
                     case IDFilter.Higher:
-                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID > Filter.ID));
+                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID > filter.ID));
                         break;
                     case IDFilter.Equal:
-                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID == Filter.ID));
+                        FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.ID == filter.ID));
                         break;
-                    
+
                 }
             }
-            if (Filter.ValueFilter != null)
+            if (filter.ValueFilter != null)
             {
-                switch (Filter.ValueFilter)
+                switch (filter.ValueFilter)
                 {
                     case ValueFilter.OutOfBounds:
                         FilteredEntities = new ObservableCollection<Entity>(FilteredEntities.ToList<Entity>().FindAll(e => e.Value >= HighLimit || e.Value <= LowLimit));

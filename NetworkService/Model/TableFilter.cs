@@ -21,6 +21,13 @@ namespace NetworkService.Model
             _idFilter = Model.IDFilter.Equal;
             _valueFilter = Model.ValueFilter.All;
         }
+        public TableFilter(TableFilter filter)
+        {
+            _id = filter.ID;
+            _type = filter.Type;
+            _idFilter = filter.IDFilter;
+            _valueFilter = filter.ValueFilter;
+        }
         public EntityType Type 
         { 
             get { return _type; }
@@ -68,6 +75,13 @@ namespace NetworkService.Model
                     OnPropertyChanged(nameof(ValueFilter));
                 }
             }
+        }
+        public void Clear()
+        {
+            ID = null;
+            IDFilter = Model.IDFilter.Equal;
+            ValueFilter = Model.ValueFilter.All;
+            Type = null;
         }
     }
     public enum IDFilter

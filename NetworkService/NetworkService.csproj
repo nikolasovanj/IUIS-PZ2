@@ -89,6 +89,7 @@
     <Compile Include="Helpers\Converters\ReadingToGraphPositionConverter.cs" />
     <Compile Include="Helpers\ValidationBase.cs" />
     <Compile Include="Helpers\ValidationErrors.cs" />
+    <Compile Include="Model\CommandStack.cs" />
     <Compile Include="Model\DisplayItem.cs" />
     <Compile Include="Model\Entity.cs" />
     <Compile Include="Model\EntityByType.cs" />
