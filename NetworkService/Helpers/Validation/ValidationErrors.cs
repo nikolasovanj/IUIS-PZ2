@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NetworkService.Helpers
+namespace NetworkService.Helpers.Validation
 {
     public class ValidationErrors : BindableBase
     {

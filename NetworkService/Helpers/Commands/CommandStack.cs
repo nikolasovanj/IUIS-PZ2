@@ -1,11 +1,7 @@
-﻿using NetworkService.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
-namespace NetworkService.Model
+namespace NetworkService.Helpers.Commands
 {
     public class CommandStack : BindableBase
     {
@@ -14,7 +10,7 @@ namespace NetworkService.Model
 
         public bool CanUndo { get { return _undoStack.Count > 0; } }
         public bool CanRedo { get { return _redoStack.Count > 0; } }
-
+        public ObservableCollection<string> History { get; } = new ObservableCollection<string>();
         public void AddCommand(MyICommand command)
         {
             _undoStack.Push(command);
@@ -29,6 +25,16 @@ namespace NetworkService.Model
             _redoStack.Push(cmd);
             Notify();
         }
+        public void UndoAll()
+        {
+            while (CanUndo)
+            {
+                var cmd = _undoStack.Pop();
+                cmd.Undo();
+                _redoStack.Push(cmd);
+                Notify();
+            }
+        }
         public void Redo()
         {
             if (!CanRedo) return;
@@ -38,9 +44,16 @@ namespace NetworkService.Model
             Notify();
         }
         private void Notify()
-        { 
+        {
             OnPropertyChanged(nameof(CanUndo));
             OnPropertyChanged(nameof(CanRedo));
+            OnPropertyChanged(nameof(History));
+        }
+        public void Clear()
+        {
+            _redoStack.Clear();
+            _undoStack.Clear();
+            Notify();
         }
     }
 }

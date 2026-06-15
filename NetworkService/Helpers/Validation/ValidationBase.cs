@@ -1,4 +1,4 @@
-﻿namespace NetworkService.Helpers
+﻿namespace NetworkService.Helpers.Validation
 {
     public abstract class ValidationBase : BindableBase
     {

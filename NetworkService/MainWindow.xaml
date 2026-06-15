@@ -5,9 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetworkService"
         xmlns:viewModel ="clr-namespace:NetworkService.ViewModel"
+        xmlns:fa5 ="http://schemas.fontawesome.com/icons/"
         xmlns:view="clr-namespace:NetworkService.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000">
+        Name="MainWindowRef"
+        Title="MainWindow" 
+        Height="600" Width="1000"
+        AllowsTransparency="True"
+        Background="{StaticResource BackroundColor}"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None">
     <Window.DataContext>
         <viewModel:MainWindowViewModel/>
     </Window.DataContext>
@@ -27,27 +36,133 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-
-        <Menu
-            Grid.Row="0"
-            Margin="5"
-            Background="White">
-            <MenuItem
-                Height="30"
-                Command="{Binding NavCommand}"
-                CommandParameter="entity"
-                Header="_Network Entities" />
-            <MenuItem
-                Height="30"
-                Command="{Binding NavCommand}"
-                CommandParameter="display"
-                Header="_Network Display" />
-            <MenuItem
-                Height="30"
-                Command="{Binding NavCommand}"
-                CommandParameter="graph"
-                Header="_Measurement Graphs" />
-        </Menu>
-        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}" />
+        <Grid Margin="5"
+              Grid.Row="0" 
+              Background="{StaticResource BackroundColor}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel
+                Grid.Column="0"
+                Orientation="Horizontal"
+                VerticalAlignment="Center"
+                Margin="10 0 20 0">
+                <Rectangle Width="6" Height="26" Fill="{StaticResource AccentColor}" RadiusX="2" RadiusY="2" Margin="0,0,8,0"/>
+                <TextBlock Text="NETWORK"
+                           Foreground="{StaticResource SecondaryColor}"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           FontFamily="{StaticResource MonoFont}"
+                           VerticalAlignment="Center"/>
+                <TextBlock Text="SERVICE"
+                           Foreground="{StaticResource PrimaryColor}"
+                           FontSize="20"
+                           FontWeight="Light"
+                           FontFamily="{StaticResource MonoFont}"
+                           Margin="4,0,0,0"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel
+                Orientation="Horizontal"
+                Grid.Column="1"
+                Margin="25 5 0 5"
+                Background="{StaticResource BackroundColor}">
+                <Button
+                    Height="30"
+                    Margin="10 0 10 0"
+                    Command="{Binding NavCommand}"
+                    CommandParameter="entity"
+                    Style="{StaticResource NavButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <fa5:SvgAwesome 
+                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                            Icon="Regular_ListAlt"
+                            Margin="3"/>
+                        <TextBlock 
+                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                            FontFamily="{Binding FontFamily, RelativeSource={RelativeSource AncestorType=Button}}"
+                            VerticalAlignment="Center" 
+                            Text="Network Entities"
+                            Margin="3">
+                        </TextBlock>
+                    </StackPanel>
+                    <Button.ToolTip>
+                        <ToolTip>
+                            <TextBlock Text="Add and preview entities"/>
+                        </ToolTip>
+                    </Button.ToolTip>
+                </Button>
+                <Button
+                    Height="30"
+                    Margin="10 0 10 0"
+                    Command="{Binding NavCommand}"
+                    CommandParameter="display"
+                    Style="{StaticResource NavButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <fa5:SvgAwesome 
+                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" 
+                            Icon="Solid_NetworkWired"
+                            Margin="3"/>
+                        <TextBlock 
+                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" 
+                            FontFamily="{Binding FontFamily, RelativeSource={RelativeSource AncestorType=Button}}"
+                            VerticalAlignment="Center" 
+                            Text="Network Display"
+                            Margin="3">
+                        </TextBlock>
+                    </StackPanel>
+                    <Button.ToolTip>
+                        <ToolTip>
+                            <TextBlock Text="Preview and control entity positions in the system"/>
+                        </ToolTip>
+                    </Button.ToolTip>
+                </Button>
+                <Button
+                    Height="30"
+                    Margin="10 0 10 0"
+                    Command="{Binding NavCommand}"
+                    CommandParameter="graph"
+                    Style="{StaticResource NavButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <fa5:SvgAwesome 
+                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" 
+                            Icon="Regular_ChartBar"
+                            Margin="3"/>
+                        <TextBlock 
+                            x:Name="NavButton"
+                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" 
+                            FontFamily="{Binding FontFamily, RelativeSource={RelativeSource AncestorType=Button}}"
+                            VerticalAlignment="Center" 
+                            Text="Measurment Graphs"
+                            Margin="3">
+                        </TextBlock>
+                    </StackPanel>
+                    <Button.ToolTip>
+                        <ToolTip>
+                            
+                            <TextBlock Text="Measurments and statistics"/>
+                        </ToolTip>
+                    </Button.ToolTip>
+                </Button>
+            </StackPanel>
+            <Button
+                Grid.Column="2"
+                HorizontalAlignment="Right" 
+                Height="40"
+                Width="40"
+                Command="{Binding CloseWindowCommand}"
+                CommandParameter="{Binding ElementName=MainWindowRef}"
+                Style="{StaticResource ExitButtonStyle}">
+                <fa5:SvgAwesome  
+                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                    Icon="Solid_Times" 
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"/>
+            </Button>
+        </Grid>
+        
+        <ContentControl x:Name="Content" Grid.Row="1" Content="{Binding CurrentViewModel}" />
     </Grid>
 </Window>

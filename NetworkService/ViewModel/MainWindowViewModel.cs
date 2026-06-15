@@ -1,53 +1,59 @@
 ﻿using MVVMLight.Messaging;
 using NetworkService.Helpers;
+using NetworkService.Helpers.Commands;
+using NetworkService.Helpers.Display;
 using NetworkService.Model;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
+using System.Windows;
 
 namespace NetworkService.ViewModel
 {
     public class MainWindowViewModel : BindableBase
     {
         public MyICommand<string> NavCommand { get; private set; }
+        public MyICommand<Window> CloseWindowCommand { get; private set; }
 
         public static ObservableCollection<Entity> Entities { get; set; }
         public static readonly string AddToken = "Add";
         public static readonly string RemoveToken = "Remove";
-        public static ObservableCollection<DisplayItem> Slots { get; set; } 
+        public static ObservableCollection<DisplayItem> Slots { get; set; }
             = new ObservableCollection<DisplayItem>()
             {
                 new DisplayItem(){X=0,  Y=0},
-                new DisplayItem(){X=170,Y=0},
-                new DisplayItem(){X=340,Y=0},
-                new DisplayItem(){X=510,Y=0},
+                new DisplayItem(){X=160,Y=0},
+                new DisplayItem(){X=320,Y=0},
+                new DisplayItem(){X=480,Y=0},
                 new DisplayItem(){X=0,  Y=130},
-                new DisplayItem(){X=170,Y=130},
-                new DisplayItem(){X=340,Y=130},
-                new DisplayItem(){X=510,Y=130},
+                new DisplayItem(){X=160,Y=130},
+                new DisplayItem(){X=320,Y=130},
+                new DisplayItem(){X=480,Y=130},
                 new DisplayItem(){X=0,  Y=260},
-                new DisplayItem(){X=170,Y=260},
-                new DisplayItem(){X=340,Y=260},
-                new DisplayItem(){X=510,Y=260},
+                new DisplayItem(){X=160,Y=260},
+                new DisplayItem(){X=320,Y=260},
+                new DisplayItem(){X=480,Y=260},
                 new DisplayItem(){X=0,  Y=390},
-                new DisplayItem(){X=170,Y=390},
-                new DisplayItem(){X=340,Y=390},
-                new DisplayItem(){X=510,Y=390}
+                new DisplayItem(){X=160,Y=390},
+                new DisplayItem(){X=320,Y=390},
+                new DisplayItem(){X=480,Y=390}
 
             };
         public static ObservableCollection<EntityByType> EntitiesByType { get; set; } 
+        public static ObservableCollection<DisplayItemConnection> Connections { get; set; } = new ObservableCollection<DisplayItemConnection>();
         public static ObservableCollection<EntityType> Types { get; } = new ObservableCollection<EntityType>
         {
             new EntityType("RTD", "../../Data/Images/RTD.png"),
-            new EntityType("TC", "../../Data/Images/TermoSprega.png")
+            new EntityType("TC", "../../Data/Images/TC.png")
         };
+        public static CommandStack EntitiesHistory { get; set; } = new CommandStack();
+        public static CommandStack DisplayHistory { get; set; } = new CommandStack();
         private int count = 1; // Inicijalna vrednost broja objekata u sistemu
                                // ######### ZAMENITI stvarnim brojem elemenata
                                //           zavisno od broja entiteta u listi
@@ -67,6 +73,7 @@ namespace NetworkService.ViewModel
         {
             createListener(); //Povezivanje sa serverskom aplikacijom
             NavCommand = new MyICommand<string>(OnNav);
+            CloseWindowCommand = new MyICommand<Window>(OnWindowClose);
             Entity e = new Entity { ID = 1, Name = "RTD-001", Type = Types[0] };
             Entity e1 = new Entity { ID = 2, Name = "TSP-001", Type = Types[1] };
             Entity e2 = new Entity { ID = 3, Name = "RTD-002", Type = Types[0] };
@@ -89,6 +96,13 @@ namespace NetworkService.ViewModel
             e3.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 31);
             Entities = new ObservableCollection<Entity>() { e, e1, e2, e3 };
             count = Entities.Count;
+            EntitiesByType = new ObservableCollection<EntityByType>(
+                Entities.GroupBy(et => et.Type).Select(g => new EntityByType
+                {
+                    Type = g.Key,
+                    Entities = new ObservableCollection<Entity>(g)
+                })
+            );
             networkDisplayViewModel = new NetworkDisplayViewModel();
             networkEntitiesViewModel = new NetworkEntitiesViewModel();
             measurementGraphViewModel = new MeasurementGraphViewModel();
@@ -163,22 +177,71 @@ namespace NetworkService.ViewModel
                     break;
             }
         }
-
+        private void OnWindowClose(Window window)
+        {
+            window.Close();
+        }
         private void AddToList(Entity entity)
         {
             Entities.Add(entity);
+            AddToCollectionByType(entity);
             count++;
         }
         private void RemoveFromList(Entity entity)
         {
             Entities.Remove(entity);
+            RemoveFromCollectionByType(entity);
+            foreach(var slot in Slots)
+            {
+                if(slot.Entity != null && slot.Entity.ID == entity.ID)
+                {
+                    List<int> idxs = CheckForConnection(slot);
+                    if (idxs.Count > 0)
+                    {
+                        Disconnect(slot);
+                    }
+                    slot.Clear();
+                    DisplayHistory.Clear();
+                }
+            }
             count--;
         }
         private (int index, int value) ParseIncomming(string incomming)
         {
-            string[] parts = incomming.Split(new char[] {':', '_'});
+            string[] parts = incomming.Split(new char[] { ':', '_' });
             return (int.Parse(parts[1]), int.Parse(parts[2]));
         }
-
+        private void AddToCollectionByType(Entity entity)
+        {
+            int groupIndex = entity.Type.Name == "RTD" ? 0 : 1;
+            EntitiesByType[groupIndex].Entities.Add(entity);
+        }
+        private void RemoveFromCollectionByType(Entity entity)
+        {
+            int groupIndex = entity.Type.Name == "RTD" ? 0 : 1;
+            EntitiesByType[groupIndex].Entities.Remove(entity);
+        }
+        private List<int> CheckForConnection(DisplayItem item)
+        {
+            List<int> idxs = new List<int>();
+            foreach (var conn in Connections)
+            {
+                if (conn.Item1.Entity.ID == item.Entity.ID || conn.Item2.Entity.ID == item.Entity.ID)
+                {
+                    idxs.Add(Connections.IndexOf(conn));
+                }
+            }
+            return idxs;
+        }
+        private void Disconnect(DisplayItem item)
+        {
+            for (int i = 0; i < Connections.Count; i++)
+            {
+                if (Connections[i].Item1.Entity.ID == item.Entity.ID || Connections[i].Item2.Entity.ID == item.Entity.ID)
+                {
+                    Connections.RemoveAt(i);
+                }
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace NetworkService.Helpers
+namespace NetworkService.Helpers.Commands
 {
     public class MyICommand : ICommand
     {
@@ -68,7 +68,7 @@ namespace NetworkService.Helpers
                 _TargetExecuteMethod();
             }
         }
-        
+
     }
 
     public class MyICommand<T> : ICommand

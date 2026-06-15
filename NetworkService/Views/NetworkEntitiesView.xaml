@@ -8,11 +8,24 @@
              xmlns:fa5="http://schemas.fontawesome.com/icons/"
              xmlns:viewModel="clr-namespace:NetworkService.ViewModel"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             Focusable="True"
+             d:DesignHeight="550" d:DesignWidth="1000">
+    <UserControl.DataContext>
+        <viewModel:NetworkEntitiesViewModel />
+    </UserControl.DataContext>
     <UserControl.Resources>
         <converter:IDFilterRadioConverter x:Key="IDRadioConverter" />
         <converter:ValueRadioConverter x:Key="ValueRadioConverter" />
     </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Modifiers="Ctrl" Key="Z" Command="{Binding UndoCommand}" />
+        <KeyBinding Modifiers="Ctrl" Key="Y" Command="{Binding RedoCommand}" />
+        <KeyBinding Modifiers="Ctrl+Shift" Key="Z" Command="{Binding UndoAllCommand}" />
+        <KeyBinding Modifiers="Ctrl" Key="R" Command="{Binding ResetFilterCommand}"/>
+        <KeyBinding Modifiers="Ctrl" Key="F" Command="{Binding SetFilterCommand}" />
+        <KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding DeleteCommand}" />
+        <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding AddCommand}" />
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -34,56 +47,65 @@
             Grid.Row="1"
             Grid.Column="1"
             Margin="5 0 5 5">
+            <Label Foreground="{StaticResource SecondaryColor}">ID</Label>
             <TextBox Text="{Binding CurrentEntity.ID, Mode=TwoWay}" />
         </StackPanel>
         <StackPanel
             Orientation="Horizontal"
             HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
             Height="40"
             Grid.Row="1"
             Grid.Column="1"
-            Margin="5 5 5 0">
+            Margin="5 5 5 0"
+            ToolTip="Give the new entity a unique identifier">
             <TextBlock 
-                Foreground="Red"
+                Foreground="{StaticResource ErrorColor}"
                 Text="{Binding CurrentEntity.ValidationErrors[ID]}"/>
         </StackPanel>
         <StackPanel
             Grid.Row="1"
             Grid.Column="2"
-            Margin="5 0 5 5">
+            Margin="5 0 5 5"
+            ToolTip="Give the new entity a name">
+            <Label Foreground="{StaticResource SecondaryColor}">Name</Label>
             <TextBox 
                 Text="{Binding CurrentEntity.Name, Mode=TwoWay}" />
         </StackPanel>
         <StackPanel
             Orientation="Horizontal"
             HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
             Height="40"
             Grid.Row="1"
             Grid.Column="2"
             Margin="5 5 5 0">
             <TextBlock 
-                Foreground="Red"
+                Foreground="{StaticResource ErrorColor}"
                 Text="{Binding CurrentEntity.ValidationErrors[Name]}"/>
         </StackPanel>
         <StackPanel
             Grid.Row="1"
             Grid.Column="3"
             Margin="5 0 5 5">
+            <Label Foreground="{StaticResource SecondaryColor}">Type</Label>
             <ComboBox
                 ItemsSource="{Binding Path=Types, Mode=OneTime}"
                 SelectedItem="{Binding Path=CurrentEntity.Type, Mode=TwoWay}"
-                DisplayMemberPath="Name">
+                DisplayMemberPath="Name"
+                ToolTip="Select the type for new entity">
             </ComboBox>
         </StackPanel>
         <StackPanel
             Orientation="Horizontal"
             HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
             Height="40"
             Grid.Row="1"
             Grid.Column="3"
             Margin="5 10 5 0">
             <TextBlock 
-                Foreground="Red"
+                Foreground="{StaticResource ErrorColor}"
                 Text="{Binding CurrentEntity.ValidationErrors[Type]}"/>
         </StackPanel>
         <Button 
@@ -91,8 +113,13 @@
             Grid.Row="1"
             Height="30"
             Width="160"
-            Content="Add"
-            Command="{Binding AddNewEntity}"/>
+            Command="{Binding AddCommand}"
+            ToolTip="Add a new entity to the sistem (Ctrl+S)">
+            <StackPanel Orientation="Horizontal">
+                <fa5:SvgAwesome Height="20" Icon="Solid_Plus" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                <TextBlock Margin="5 0 0 0 " Text="Add" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Button>
         <Grid
             Grid.Row="2"
             Grid.RowSpan="2"
@@ -110,16 +137,19 @@
             <Label
                 Grid.Column="0"
                 Grid.Row="0"
+                Foreground="{StaticResource SecondaryColor}"
                 FontSize="12">Filters</Label>
             <StackPanel
                 Grid.Row="1"
                 Grid.Column="0"
                 Margin="5 0 5 5"
-                Orientation="Horizontal">
-                <Label>Type</Label>
+                Orientation="Vertical">
+                <Label Foreground="{StaticResource SecondaryColor}"
+                       IsHitTestVisible="False">Type</Label>
                 <ComboBox
                     Height="20"
                     Width="130"
+                    HorizontalAlignment="Left"
                      ItemsSource="{Binding Path=Types, Mode=OneTime}"
                      SelectedItem="{Binding Filter.Type, Mode=TwoWay}"
                      DisplayMemberPath="Name">
@@ -129,7 +159,7 @@
                 Grid.Row="2"
                 Grid.Column="0"
                 Margin="0 0 0 5">
-                <Label>ID</Label>
+                <Label Foreground="{StaticResource SecondaryColor}">ID</Label>
                 <StackPanel 
                     Orientation="Horizontal">
                     <RadioButton 
@@ -153,10 +183,10 @@
                 Grid.RowSpan="2"
                 Grid.Column="1" 
                 Orientation="Vertical">
-                <Label>Range</Label>
+                <Label Foreground="{StaticResource SecondaryColor}">Range</Label>
                 <RadioButton
                     Content="All"
-                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=All, Mode=TwoWay}" />
+                    IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=All, Mode=TwoWay}"/>
                 <RadioButton
                     Content="In range"
                     IsChecked="{Binding Filter.ValueFilter, Converter={StaticResource ValueRadioConverter}, ConverterParameter=InsideBounds, Mode=TwoWay}" />
@@ -169,24 +199,28 @@
                 Grid.Column="1"
                 Orientation="Horizontal">
                 <Button 
-                    Height="20"
+                    Height="22"
                     Width="70"
                     Content="Apply"
                     HorizontalAlignment="Left"
                     Margin="10 0 15 0"
-                    Command="{Binding SetFilter}"/>
+                    Command="{Binding SetFilterCommand}"
+                    ToolTip="Apply filters (Ctrl+F)"/>
                 <Button 
-                    Height="20"
+                    Height="22"
                     Width="70"
                     Content="Reset"
                     HorizontalAlignment="Right"
-                    Command="{Binding ResetFilter}"/>
+                    ToolTip="Reset applied filters (Ctrl+R)"
+                    Command="{Binding ResetFilterCommand}"/>
             </StackPanel>
         </Grid>
         <DataGrid
             Grid.Row="4"
             Grid.Column="1"
             Grid.ColumnSpan="3"
+            Height="177"
+            VerticalAlignment="Top"
             CanUserResizeColumns="False"
             CanUserReorderColumns="False"
             CanUserResizeRows="False"
@@ -201,21 +235,26 @@
                 <DataGridTextColumn
                     Header="ID"
                     Width="105"
+                    FontSize="20"
                     Binding="{Binding Path=ID}" />
                 <DataGridTextColumn
                     Header="Name"
                     Width="140"
+                    FontSize="20"
                     Binding="{Binding Path=Name}" />
                 <DataGridTextColumn
                     Header="Type"
-                    Width="130"
+                    Width="120"
+                    FontSize="20"
                     Binding="{Binding Path=Type.Name}" />
                 <DataGridTextColumn
                     Header="Value"
                     Width="120"
-                    Binding="{Binding Path=Value}" />
+                    FontSize="20"
+                    Binding="{Binding Path=Value, StringFormat={}{0} °C}" />
                 <DataGridTextColumn
                     Header="Time"
+                    Width="200"
                     FontSize="20"
                     Binding="{Binding Path=TimeStamp, StringFormat={}{0:dd/MM/yyy HH:mm:ss}}" />
             </DataGrid.Columns>
@@ -227,27 +266,74 @@
             Width="160"
             VerticalAlignment="Bottom"
             Margin="0 0 0 4"
-            Content="Delete"
-            Command="{Binding DeleteEntity}"/>
+            Command="{Binding DeleteCommand}"
+            Style="{StaticResource DeleteButtonStyle}"
+            ToolTip="Delete the selected entity (Ctrl+D)">
+            <StackPanel Orientation="Horizontal">
+                <fa5:SvgAwesome Icon="Regular_TrashAlt" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                <TextBlock Margin="5,0,0,0" Text="Delete" />
+            </StackPanel>
+        </Button>
         <StackPanel
             Grid.Row="5"
-            Grid.Column="4"
+            Grid.Column="3"
             Grid.ColumnSpan="2"
+            HorizontalAlignment="Right"
             Orientation="Horizontal"
             Margin="5,5,5,2">
 
             <Button
                 Width="80"
+                Height="20"
                 Margin="0,0,4,0"
-                Command="{Binding Undo}"
+                Command="{Binding UndoCommand}"
                 ToolTip="Undo last action (Ctrl+Z)">
                 <StackPanel Orientation="Horizontal">
-                    <fa5:SvgAwesome Height="13" Foreground="Gray" Icon="Solid_UndoAlt" />
+                    <fa5:SvgAwesome Height="13" Foreground="{Binding Foreground , RelativeSource={RelativeSource AncestorType=Button}}" Icon="Solid_UndoAlt" />
                     <TextBlock Margin="5,0,0,0" Text="Undo" />
                 </StackPanel>
             </Button>
-
-            
+            <Button
+                Width="80"
+                Height="20"
+                Margin="0,0,4,0"
+                Command="{Binding UndoAllCommand}"
+                ToolTip="Undo All actions (Ctrl+Shift+Z)">
+                <StackPanel Orientation="Horizontal">
+                    <fa5:SvgAwesome Height="13" Foreground="{Binding Foreground , RelativeSource={RelativeSource AncestorType=Button}}" Icon="Solid_Backward" />
+                    <TextBlock Margin="5,0,0,0" Text="Undo All" />
+                </StackPanel>
+            </Button>
+            <Button
+                Width="80"
+                Height="20"
+                Margin="0,0,4,0"
+                Command="{Binding RedoCommand}"
+                ToolTip="Undo last action (Ctrl+Y)">
+                <StackPanel Orientation="Horizontal">
+                    <fa5:SvgAwesome Height="13" Foreground="{Binding Foreground , RelativeSource={RelativeSource AncestorType=Button}}" Icon="Solid_RedoAlt" />
+                    <TextBlock Margin="5,0,0,0" Text="Redo" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        <StackPanel
+                Margin="10 10 10 10"
+                Grid.Column="4"
+                Grid.Row="2"
+                Grid.RowSpan="3">
+            <TextBlock
+                Height="20"
+                FontWeight="SemiBold"
+                FontSize="15"
+                HorizontalAlignment="Center"
+                Text="History"
+                ToolTip="All previous actions on this page are shown here"
+                Style="{StaticResource HistoryHeader}"/>
+            <ListView
+                    Height="260"
+                    IsHitTestVisible="False"
+                    ItemsSource="{Binding History.History}">
+            </ListView>
         </StackPanel>
     </Grid>
 </UserControl>

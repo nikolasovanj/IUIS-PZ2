@@ -1,26 +1,25 @@
-﻿using NetworkService.Helpers;
+﻿using NetworkService.Model;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace NetworkService.Model
+namespace NetworkService.Helpers.Display
 {
     public class DisplayItem : BindableBase
     {
         private Entity _entity;
         private bool _isTaken;
-        private bool _isConnected;
-        private ImageBrush _backround;
+        private bool _isSelected;
+        private ImageBrush _background;
+        private ObservableCollection<Entity> _connections;
         private double _x;
         private double _y;
 
         public DisplayItem()
         {
+            _connections = new ObservableCollection<Entity>();
         }
         public Entity Entity
         {
@@ -30,15 +29,15 @@ namespace NetworkService.Model
                 if (_entity != value)
                 {
                     _entity = value;
-                    if (value != null)
+                    if (_entity != null)
                     {
-                        Backround = SetImage(_entity.Type.Path);
+                        Background = SetImage(_entity.Type.Path);
                     }
                     OnPropertyChanged(nameof(Entity));
                 }
             }
         }
-        
+
         public bool IsTaken
         {
             get { return _isTaken; }
@@ -51,15 +50,15 @@ namespace NetworkService.Model
                 }
             }
         }
-        public bool IsConnected
+        public bool IsSelected
         {
-            get { return _isConnected; }
+            get { return _isSelected; }
             set
             {
-                if(value != _isConnected)
+                if (value != _isSelected)
                 {
-                    _isConnected = value;
-                    OnPropertyChanged(nameof(IsConnected));
+                    _isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
                 }
             }
         }
@@ -68,7 +67,7 @@ namespace NetworkService.Model
             get { return _x; }
             set
             {
-                if(_x != value)
+                if (_x != value)
                 {
                     _x = value;
                     OnPropertyChanged(nameof(X));
@@ -87,43 +86,42 @@ namespace NetworkService.Model
                 }
             }
         }
-        public ImageBrush Backround
+        public ImageBrush Background
         {
-            get { return _backround; }
+            get { return _background; }
             set
             {
-                if(_backround != value)
+                if (_background != value)
                 {
-                    _backround = value;
-                    OnPropertyChanged(nameof(Backround));
+                    _background = value;
+                    OnPropertyChanged(nameof(Background));
                 }
             }
         }
+        public ObservableCollection<Entity> Connections
+        {
+            get { return _connections; }
+            set
+            {
+                if (_connections != value)
+                {
+                    _connections = value;
+                    OnPropertyChanged(nameof(Connections));
+                }
+            }
+        }
+        public void AddConnection(Entity entity)
+        {
+            Connections.Add(entity);
+        }
         public void Clear()
         {
-            Backround = null;
+            Background = null;
             Entity = null;
             IsTaken = false;
-            IsConnected = false;
+            IsSelected = false;
+            Connections.Clear();
         }
-        //private void CheckValue(object sender, PropertyChangedEventArgs e)
-        //{
-        //    if(e.PropertyName == nameof(Entity.Value))
-        //    {
-        //        ValueToImage();
-        //    }
-        //}
-        //private void ValueToImage()
-        //{
-        //    if (Entity.Value > 350 || Entity.Value < 250)
-        //    {
-        //        Backround = SetImage("../../Data/Images/Warning.png");
-        //    }
-        //    else
-        //    {
-        //        Backround = SetImage(Entity.Type.Path);
-        //    }
-        //}
         private ImageBrush SetImage(string path)
         {
             var bmp = new BitmapImage();

@@ -1,12 +1,6 @@
-﻿using NetworkService.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NetworkService.Model;
 
-namespace NetworkService.Model
+namespace NetworkService.Helpers.Filters
 {
     public class TableFilter : BindableBase
     {
@@ -14,12 +8,12 @@ namespace NetworkService.Model
         private int? _id;
         private IDFilter? _idFilter;
         private ValueFilter? _valueFilter;
-        public TableFilter() 
+        public TableFilter()
         {
             _type = null;
             _id = null;
-            _idFilter = Model.IDFilter.Equal;
-            _valueFilter = Model.ValueFilter.All;
+            _idFilter = Filters.IDFilter.Equal;
+            _valueFilter = Filters.ValueFilter.All;
         }
         public TableFilter(TableFilter filter)
         {
@@ -28,48 +22,48 @@ namespace NetworkService.Model
             _idFilter = filter.IDFilter;
             _valueFilter = filter.ValueFilter;
         }
-        public EntityType Type 
-        { 
+        public EntityType Type
+        {
             get { return _type; }
-            set 
+            set
             {
                 if (_type != value)
                 {
                     _type = value;
                     OnPropertyChanged(nameof(Type));
                 }
-            } 
+            }
         }
-        public int? ID 
+        public int? ID
         {
             get { return _id; }
-            set 
+            set
             {
                 if (_id != value)
-                { 
+                {
                     _id = value;
                     OnPropertyChanged(nameof(ID));
                 }
-            } 
+            }
         }
-        public IDFilter? IDFilter 
-        { 
-            get { return  _idFilter; }
+        public IDFilter? IDFilter
+        {
+            get { return _idFilter; }
             set
             {
-                if( _idFilter != value)
+                if (_idFilter != value)
                 {
-                    _idFilter= value;
+                    _idFilter = value;
                     OnPropertyChanged(nameof(IDFilter));
                 }
             }
         }
-        public ValueFilter? ValueFilter 
-        { 
+        public ValueFilter? ValueFilter
+        {
             get { return _valueFilter; }
             set
             {
-                if( value != _valueFilter)
+                if (value != _valueFilter)
                 {
                     _valueFilter = value;
                     OnPropertyChanged(nameof(ValueFilter));
@@ -79,8 +73,8 @@ namespace NetworkService.Model
         public void Clear()
         {
             ID = null;
-            IDFilter = Model.IDFilter.Equal;
-            ValueFilter = Model.ValueFilter.All;
+            IDFilter = Filters.IDFilter.Equal;
+            ValueFilter = Filters.ValueFilter.All;
             Type = null;
         }
     }

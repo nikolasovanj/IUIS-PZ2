@@ -1,21 +1,21 @@
 ﻿using NetworkService.Helpers;
+using NetworkService.Helpers.Commands;
+using NetworkService.Helpers.Graph;
 using NetworkService.Model;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Windows;
 
 namespace NetworkService.ViewModel
 {
     public class MeasurementGraphViewModel : BindableBase
     {
+        public MyICommand NextCommand { get; set; }
+        public MyICommand PrevCommand { get; set; }
         public ObservableCollection<Entity> Entities { get; }
         private Entity currentEntity;
 
-        private readonly double _typeCount = 0;
+        private double _typeCount = 0;
 
         private ObservableCollection<GraphPoint> _points;
         private ObservableCollection<GraphEdge> _edges;
@@ -23,6 +23,8 @@ namespace NetworkService.ViewModel
 
         public MeasurementGraphViewModel(ObservableCollection<Entity> entities)
         {
+            NextCommand = new MyICommand(OnNext);
+            PrevCommand = new MyICommand(OnPrev);
             Entities = entities;
             if (Entities.Count > 0)
             {
@@ -33,15 +35,19 @@ namespace NetworkService.ViewModel
                         _typeCount++;
                     }
                 }
+                _typeCount = _typeCount / Entities.Count * 400;
             }
-            CurrentEntity = entities[0];
-            CurrentEntity.PropertyChanged += ValueChanged;
-            PropertyChanged += EntityChanged;
-            PropertyChanged += ValueChanged;
             InitializePoints();
-            LoadReading(currentEntity.LastValues, currentEntity.LastTimeStamps);
             InitializeEdges();
             CreateEdges();
+            if(entities.Count > 0)
+            {
+                CurrentEntity = entities[0];
+                CurrentEntity.PropertyChanged += ValueChanged;
+                LoadReading(currentEntity.LastValues, currentEntity.LastTimeStamps);
+            }
+            PropertyChanged += EntityChanged;
+            PropertyChanged += ValueChanged;
         }
 
         public MeasurementGraphViewModel()
@@ -77,7 +83,7 @@ namespace NetworkService.ViewModel
             {
                 if (currentEntity != value)
                 {
-                    if(CurrentEntity != null)
+                    if (CurrentEntity != null)
                     {
                         CurrentEntity.PropertyChanged -= ValueChanged;
                     }
@@ -89,6 +95,14 @@ namespace NetworkService.ViewModel
         public double TypeCount
         {
             get { return _typeCount; }
+            set
+            {
+                if(_typeCount != value)
+                {
+                    _typeCount = value;
+                    OnPropertyChanged(nameof(TypeCount));
+                }
+            }
         }
         public ObservableCollection<GraphPoint> Points
         {
@@ -103,11 +117,11 @@ namespace NetworkService.ViewModel
             }
         }
         public ObservableCollection<GraphEdge> Edges
-        { 
+        {
             get { return _edges; }
             set
             {
-                if(value != _edges)
+                if (value != _edges)
                 {
                     _edges = value;
                     OnPropertyChanged(nameof(Edges));
@@ -125,7 +139,10 @@ namespace NetworkService.ViewModel
         {
             if (e.PropertyName == nameof(Entity.Value) || e.PropertyName == nameof(Entity.TimeStamp) || e.PropertyName == nameof(CurrentEntity))
             {
-                LoadReading(currentEntity.LastValues, currentEntity.LastTimeStamps);
+                if (currentEntity != null)
+                { 
+                    LoadReading(currentEntity.LastValues, currentEntity.LastTimeStamps);
+                }
             }
         }
         private void InitializePoints()
@@ -141,13 +158,13 @@ namespace NetworkService.ViewModel
         }
         private void LoadReading(int[] readings, DateTime[] times)
         {
-            if(readings.Length > 0 && times.Length > 0)
+            if (readings.Length > 0 && times.Length > 0)
             {
                 for (int i = 0; i < readings.Length; i++)
                 {
-                    Points[i].Value = readings[i]; 
-                    Points[i].X = i * 100 + 20;
-                    Points[i].Y = 250 - ((readings[i] - 150) * 5 / 6);
+                    Points[i].Value = readings[i];
+                    Points[i].X = i * 200 + 20;
+                    Points[i].Y = 250 - ((readings[i] - 150)) * 5/6;
                     Points[i].Time = times[i];
                 }
             }
@@ -164,14 +181,22 @@ namespace NetworkService.ViewModel
         }
         private void CreateEdges()
         {
-            if(Points.Count > 1)
+            if (Points.Count > 1)
             {
-                for(int i = 0; i < Points.Count-1; i++)
+                for (int i = 0; i < Points.Count - 1; i++)
                 {
                     Edges[i].Point1 = Points[i];
-                    Edges[i].Point2 = Points[i+1];
+                    Edges[i].Point2 = Points[i + 1];
                 }
             }
+        }
+        private void OnNext()
+        {
+            CurrentEntity = Entities[Entities.IndexOf(CurrentEntity) + 1 %  Entities.Count];
+        }
+        private void OnPrev()
+        {
+            CurrentEntity = Entities[(Entities.IndexOf(CurrentEntity) - 1) % Entities.Count];
         }
     }
 }

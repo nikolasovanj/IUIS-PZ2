@@ -5,25 +5,34 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NetworkService.Views"
              xmlns:converter="clr-namespace:NetworkService.Helpers.Converters"
+             xmlns:viewModel="clr-namespace:NetworkService.ViewModel"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             Focusable="True"
+             d:DesignHeight="550" d:DesignWidth="1000">
+    <UserControl.DataContext>
+        <viewModel:MeasurementGraphViewModel />
+    </UserControl.DataContext>
     <UserControl.Resources>
         <converter:ReadingToGraphPositionConverter x:Key="GraphConverter"/>
         <converter:ReadingToGraphTimeConverter x:Key="TimeConverter" />
         <converter:TypeCountToGraphWidthConverter x:Key="TypeCountConverter" />
         <converter:GraphPointColorConverter x:Key="ColorConverter" />
         <converter:GraphVisibilityConverter x:Key="VisibilityConverter" />
+        <converter:EntityVisibilityConverter x:Key="EntityVisibilityConverter" />
     </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Modifiers="Control" Key="Right" Command="{Binding NextCommand}" />
+        <KeyBinding Modifiers="Control" Key="Left" Command="{Binding PrevCommand}" />
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="7*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="6*" />
             <ColumnDefinition Width="6*" />
             <ColumnDefinition Width="6*" />
             <ColumnDefinition Width="*" />
@@ -34,9 +43,13 @@
             Grid.Column="1"
             Width="160"
             Height="30"
-            ItemsSource="{Binding Entities}"
+            Background="{StaticResource PrimaryColor}"
+            Foreground="{StaticResource SecondaryColor}"
             SelectedItem="{Binding CurrentEntity, Mode=TwoWay}"
-            DisplayMemberPath="Name"/>
+            ItemsSource="{Binding Entities, Mode=OneWay}"
+            DisplayMemberPath="Name"
+            ToolTip="Choose a entity to see it's measurments (Ctrl + > Ctrl + &lt;)">
+        </ComboBox>
         <StackPanel
             Grid.Column="2"
             Grid.Row="1"
@@ -46,32 +59,48 @@
                 Orientation="Horizontal"
                 Height="40">
                 <Rectangle
-                    Height="10"
-                    Width="10"
-                    Fill="DodgerBlue"/>
+                    Height="15"
+                    Width="15"
+                    Margin="5"
+                    Fill="{StaticResource GraphPointColor}"
+                    Stroke="{StaticResource PrimaryColor}"/>
                 <TextBlock
                     Margin="2"
                     VerticalAlignment="Center"
+                    Style="{StaticResource GraphLabelTextBlockStyle}"
                     Text="Valid"/>
             </StackPanel>
             <StackPanel 
                 Margin="10 0 0 0 "
                 Orientation="Horizontal"
-                Height="40">        
+                Height="40">
                 <Rectangle
-                    Height="10"
-                    Width="10"
-                    Fill="Crimson"/>
+                    Height="15"
+                    Width="15"
+                    Margin="5"
+                    Fill="{StaticResource ErrorColor}"
+                    Stroke="{StaticResource PrimaryColor}"/>
                 <TextBlock
                     Margin="2"
                     VerticalAlignment="Center"
+                    Style="{StaticResource GraphLabelTextBlockStyle}"
                     Text="Out of bounds"/>
             </StackPanel>
         </StackPanel>
+        <Rectangle Grid.Column="0" Grid.ColumnSpan="4"
+                   Grid.Row="1"
+                   VerticalAlignment="Top" HorizontalAlignment="Center"
+                   Width="900" Style="{StaticResource GraphStep}"/>
+       
         <Canvas
             Grid.Row="2"
             Grid.Column="1"
-            Grid.ColumnSpan="2">
+            Grid.ColumnSpan="2"
+            HorizontalAlignment="Center"
+            Width="900"
+            Height="300"
+            Background="{StaticResource PrimaryHighlightColor}"
+            Visibility="{Binding CurrentEntity.LastValues, Converter={StaticResource VisibilityConverter}, ConverterParameter=True}">
             <ItemsControl ItemsSource="{Binding Path=Edges}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -82,12 +111,12 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Line 
-                            Stroke="Black" 
-                            StrokeThickness="4"
-                            X1="{Binding Path=Point1.X, Converter={StaticResource GraphConverter}, ConverterParameter=20}"
-                            X2="{Binding Path=Point2.X, Converter={StaticResource GraphConverter}, ConverterParameter=20}"
-                            Y1="{Binding Path=Point1.Y, Converter={StaticResource GraphConverter}, ConverterParameter=20}"
-                            Y2="{Binding Path=Point2.Y, Converter={StaticResource GraphConverter}, ConverterParameter=20}"/>
+                            Stroke="{StaticResource GraphEdgeColor}" 
+                            StrokeThickness="6"
+                            X1="{Binding Path=Point1.X, Converter={StaticResource GraphConverter}, ConverterParameter=30}"
+                            X2="{Binding Path=Point2.X, Converter={StaticResource GraphConverter}, ConverterParameter=30}"
+                            Y1="{Binding Path=Point1.Y, Converter={StaticResource GraphConverter}, ConverterParameter=30}"
+                            Y2="{Binding Path=Point2.Y, Converter={StaticResource GraphConverter}, ConverterParameter=30}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -109,16 +138,18 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid
-                            Width="40" Height="40">
+                            Width="60" Height="60"
+                            Visibility="{Binding CurrentEntity.Value, Converter={StaticResource VisibilityConverter}}">
                             <Ellipse 
                                  Fill="{Binding Value, Converter={StaticResource ColorConverter}}"
-                                 Stroke="Black"
-                                 StrokeThickness="2"/>
+                                 Stroke="{StaticResource GraphEdgeColor}"
+                                 StrokeThickness="4"/>
                             <TextBlock 
                                 Text="{Binding Path=Value}" 
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                FontSize="20"/>
+                                FontSize="20"
+                                Foreground="{StaticResource PrimaryColor}"/>
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -126,9 +157,9 @@
             <Line 
                 X1="0"
                 Y1="300"
-                X2="480"
+                X2="900"
                 Y2="300"
-                Stroke="Black"
+                Stroke="{StaticResource SecondaryColor}"
                 StrokeThickness="2"/>
             <ItemsControl ItemsSource="{Binding Points}">
 
@@ -150,96 +181,166 @@
                         <TextBlock 
                             Text="{Binding Time, Converter={StaticResource TimeConverter}}"
                             Width="50"
-                            TextAlignment="Center"/>
+                            TextAlignment="Center"
+                            Foreground="{StaticResource SecondaryColor}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            
-            <Grid
-                Visibility="{Binding CurrentEntity.LastValues, Converter={StaticResource VisibilityConverter}}">
-                <Rectangle
-                Height="400"
-                Width="480"
-                Fill="White"/>
-                <TextBlock 
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    FontSize="30"
-                    Text="Not enough data yet..."/>
-            </Grid>
         </Canvas>
-        
-        <Grid
-            Grid.Row="2"
-            Grid.Column="3">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="2*" />
-            </Grid.RowDefinitions>
-
+        <Rectangle
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left"
+             Grid.Row="1"
+             Grid.RowSpan="3"
+             Grid.Column="0"
+             Grid.ColumnSpan="4"
+             Width="1000"
+             Height="400"
+             Fill="{StaticResource BackroundColor}"
+             Visibility="{Binding Entities.Count, Converter={StaticResource EntityVisibilityConverter}}">
+        </Rectangle>
+        <TextBlock 
+             Grid.Row="2"
+             Grid.Column="1"
+             Grid.ColumnSpan="2"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center"
+             FontSize="30"
+             Text="Not enough data yet..."
+             Visibility="{Binding CurrentEntity.LastValues, Converter={StaticResource VisibilityConverter}}"/>
+        <StackPanel 
+            Grid.Column="1"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Left">
             <Canvas
-                x:Name="RatioCanvas"
-                Grid.Row="1">
+                Height="45"
+                ToolTip="See how man of each entity type is present in the system">
                 <Rectangle
-                    Width="240"
-                    Height="72"
+                    Width="404"
+                    Height="49"
+                    Canvas.Left="-2"
+                    Canvas.Top="-2"
+                    Stroke="{StaticResource PrimaryColor}"
+                    StrokeThickness="6"/>
+                <Rectangle
+                    Width="400"
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
                     HorizontalAlignment="Right"
-                    Fill="Goldenrod"/>
+                    Fill="{StaticResource EntityType1Color}"/>
                 <Rectangle
-                    Width="{Binding TypeCount, Converter={StaticResource TypeCountConverter}}"
-                    Height="72"
+                    Width="{Binding TypeCount}"
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
                     HorizontalAlignment="Left"
-                    Fill="CadetBlue"/>
+                    Fill="{StaticResource EntityType2Color}"/>
+                <Rectangle
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                    Style="{StaticResource GraphStep}"
+                    Canvas.Left="40"/>
+                <Rectangle
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                    Style="{StaticResource GraphStep}"
+                    Canvas.Left="80"/>
+                <Rectangle
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                    Style="{StaticResource GraphStep}"
+                    Canvas.Left="120"/>
+                <Rectangle
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                    Style="{StaticResource GraphStep}"
+                    Canvas.Left="160"/>
+                <Rectangle
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                    Style="{StaticResource GraphStep}"
+                    Canvas.Left="200"/>
+                <Rectangle
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                    Style="{StaticResource GraphStep}"
+                    Canvas.Left="240"/>
+                <Rectangle
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                    Style="{StaticResource GraphStep}"
+                    Canvas.Left="280"/>
+                <Rectangle
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                    Style="{StaticResource GraphStep}"
+                    Canvas.Left="320"/>
+                <Rectangle
+                    Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                    Style="{StaticResource GraphStep}"
+                    Canvas.Left="360"/>
+
             </Canvas>
-            
-            <StackPanel
-                Grid.Row="2">
-                <StackPanel
-                    Height="20">
-                    <Canvas>
-                        <TextBlock Text="0%"
-                                   Canvas.Left="-10"/>
-                        <TextBlock Text="20%"
-                                   Canvas.Left="38"/>
-                        <TextBlock Text="40%"
-                                   Canvas.Left="86"/>
-                        <TextBlock Text="60%"
-                                   Canvas.Left="132"/>
-                        <TextBlock Text="80%"
-                                   Canvas.Left="180"/>
-                        <TextBlock Text="100%"
-                                   Canvas.Left="228"/>
-                    </Canvas>
-                </StackPanel>
-                <StackPanel 
-                    Orientation="Horizontal"
-                    Height="40">
-                    <Rectangle
-                        Height="10"
-                        Width="10"
-                        Fill="CadetBlue"/>
-                    <TextBlock
-                        Margin="2"
-                        VerticalAlignment="Center"
-                        Text="RTD"/>
-                </StackPanel>
-                <StackPanel 
-                    Orientation="Horizontal"
-                    Height="40">
-                    <Rectangle
-                        Height="10"
-                        Width="10"
-                        Fill="Goldenrod"/>
-                    <TextBlock
-                        Margin="2"
-                        VerticalAlignment="Center"
-                        Text="TC"/> 
-                </StackPanel>
+            <Canvas>
+                <TextBlock Text="0%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="-10"/>
+                <TextBlock Text="10%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="30"/>
+                <TextBlock Text="20%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="70"/>
+                <TextBlock Text="30%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="110"/>
+                <TextBlock Text="40%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="150"/>
+                <TextBlock Text="50%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="190"/>
+                <TextBlock Text="60%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="230"/>
+                <TextBlock Text="70%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="270"/>
+                <TextBlock Text="80%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="310"/>
+                <TextBlock Text="90%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="350"/>
+                <TextBlock Text="100%"
+                            Foreground="{StaticResource SecondaryColor}"
+                            Canvas.Left="390"/>
+            </Canvas>
+        </StackPanel>
+        <StackPanel Grid.Column="2"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+            <StackPanel 
+                Orientation="Horizontal"
+                Height="30"
+                Margin="0 5 0 5">
+                <Rectangle
+                    Height="15"
+                    Width="15"
+                    Margin="5"
+                    Fill="{StaticResource EntityType2Color}"
+                    Stroke="{StaticResource PrimaryColor}"/>
+                <TextBlock
+                    Margin="5"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource GraphLabelTextBlockStyle}"
+                    Text="Resistance thermometer"/>
             </StackPanel>
-        </Grid>
-        
-
-
+            <StackPanel
+                    Orientation="Horizontal"
+                    Margin="0 5 0 5"
+                    Height="30">
+                <Rectangle
+                        Height="15"
+                        Width="15"
+                        Margin="5"
+                        Fill="{StaticResource EntityType1Color}"
+                        Stroke="{StaticResource PrimaryColor}"/>
+                <TextBlock
+                        Margin="5"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource GraphLabelTextBlockStyle}"
+                        Text="Thermal Coupling"/>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </UserControl>

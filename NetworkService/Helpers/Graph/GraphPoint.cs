@@ -1,11 +1,6 @@
-﻿using NetworkService.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
-namespace NetworkService.Model
+namespace NetworkService.Helpers.Graph
 {
     public class GraphPoint : BindableBase
     {
@@ -56,7 +51,7 @@ namespace NetworkService.Model
             get { return _time; }
             set
             {
-                if(this._time != value)
+                if (this._time != value)
                 {
                     _time = value;
                     OnPropertyChanged(nameof(Time));

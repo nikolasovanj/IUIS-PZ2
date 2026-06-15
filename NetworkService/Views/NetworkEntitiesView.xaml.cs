@@ -1,5 +1,6 @@
 ﻿using NetworkService.ViewModel;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace NetworkService.Views
 {
@@ -12,6 +13,9 @@ namespace NetworkService.Views
         {
             InitializeComponent();
             this.DataContext = new NetworkEntitiesViewModel(MainWindowViewModel.Entities);
+
+            Loaded += (_, __) => Keyboard.Focus(this);
+            Focus();
         }
     }
 }

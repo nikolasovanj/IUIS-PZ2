@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
-using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace NetworkService.Helpers.Converters
 {
-    internal class GraphVisibilityConverter : IValueConverter
+    public class DisplayErrorColorConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Visibility ret = ((int[])value).Any(i => i == 0) ? Visibility.Visible : Visibility.Hidden;
-            if (parameter != null)
-            {
-                ret = bool.Parse((string)parameter) ? ret == Visibility.Visible ? Visibility.Hidden : Visibility.Visible : ret;
-            }
-            return ret;
+            return ((int)value < 350 && (int)value > 250);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -1,4 +1,4 @@
-﻿using NetworkService.Helpers;
+﻿using NetworkService.Helpers.Validation;
 using System;
 using System.Linq;
 
@@ -71,7 +71,7 @@ namespace NetworkService.Model
                 this.value = value;
                 AddValue(this.value);
                 OnPropertyChanged(nameof(Value));
-                
+
             }
         }
         public DateTime TimeStamp
@@ -79,7 +79,7 @@ namespace NetworkService.Model
             get { return timeStamp; }
             set
             {
-                if(timeStamp != value)
+                if (timeStamp != value)
                 {
                     timeStamp = value;
                     AddTimeStamp(value);
@@ -125,7 +125,7 @@ namespace NetworkService.Model
                         break;
                     }
 
-                }   
+                }
             }
         }
         private void AddTimeStamp(DateTime timeStamp)
