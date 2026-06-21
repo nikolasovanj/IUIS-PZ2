@@ -95,7 +95,11 @@ namespace NetworkService.Model
             {
                 this.ValidationErrors["Name"] = "Name is required";
             }
-            if (this.id <= 0)
+            if(this.id == 0)
+            {
+                this.ValidationErrors["ID"] = "Id is required";
+            }
+            else if (this.id <= 0)
             {
                 this.ValidationErrors["ID"] = "Id cannot be negative";
             }

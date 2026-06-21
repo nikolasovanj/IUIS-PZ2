@@ -331,7 +331,6 @@
                 Style="{StaticResource HistoryHeader}"/>
             <ListView
                     Height="260"
-                    IsHitTestVisible="False"
                     ItemsSource="{Binding History.History}">
             </ListView>
         </StackPanel>

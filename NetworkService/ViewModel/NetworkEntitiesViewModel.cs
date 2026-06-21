@@ -117,11 +117,9 @@ namespace NetworkService.ViewModel
                     Name = currentEntity.Name,
                     Type = currentEntity.Type
                 };
-                //Entities.Add(entity);
                 Messenger.Default.Send(entity, MainWindowViewModel.AddToken);
                 FilteredEntities = Entities;
                 ApplyFilter(Filter);
-                //Messenger.Default.Send<Entity>(entity, MainWindowViewModel.AddToken);
                 CurrentEntity.ID = 0;
                 CurrentEntity.Name = string.Empty;
                 CurrentEntity.Type = null;
@@ -132,16 +130,15 @@ namespace NetworkService.ViewModel
                 History.AddCommand(undoCmd);
                 History.History.Insert(0, $"Added ID:{entity.ID}");
                 Refresh();
+                Messenger.Default.Send(NotificationHelper.CreateSuccessToastNotification("New entity successfully added."));
             }
         }
         private void OnDelete()
         {
             Entity toDelete = selectedEntity;
-            //Entities.Remove(selectedEntity);
             Messenger.Default.Send(selectedEntity, MainWindowViewModel.RemoveToken);
             FilteredEntities = Entities;
             ApplyFilter(Filter);
-            //Messenger.Default.Send<Entity>(selectedEntity, MainWindowViewModel.RemoveToken);
             var undoCmd = new MyICommand(
                 () => { Messenger.Default.Send(toDelete, MainWindowViewModel.RemoveToken); FilteredEntities = Entities; ApplyFilter(Filter); },
                 () => { Messenger.Default.Send(toDelete, MainWindowViewModel.AddToken); FilteredEntities = Entities; ApplyFilter(Filter); }
@@ -149,6 +146,8 @@ namespace NetworkService.ViewModel
             History.AddCommand(undoCmd);
             History.History.Insert(0, $"Deleted ID:{toDelete.ID}");
             Refresh();
+
+            Messenger.Default.Send(NotificationHelper.CreateSuccessToastNotification("Entity successfully deleted."));
         }
         private void OnResetFilter()
         {

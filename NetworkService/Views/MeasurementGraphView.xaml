@@ -207,6 +207,7 @@
              VerticalAlignment="Center"
              FontSize="30"
              Text="Not enough data yet..."
+             Foreground="{StaticResource SecondaryColor}"
              Visibility="{Binding CurrentEntity.LastValues, Converter={StaticResource VisibilityConverter}}"/>
         <StackPanel 
             Grid.Column="1"

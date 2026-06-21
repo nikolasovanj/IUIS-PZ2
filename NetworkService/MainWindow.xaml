@@ -7,6 +7,7 @@
         xmlns:viewModel ="clr-namespace:NetworkService.ViewModel"
         xmlns:fa5 ="http://schemas.fontawesome.com/icons/"
         xmlns:view="clr-namespace:NetworkService.Views"
+        xmlns:notification="clr-namespace:Notification.Wpf.Controls;assembly=Notification.Wpf"
         mc:Ignorable="d"
         Name="MainWindowRef"
         Title="MainWindow" 
@@ -20,6 +21,12 @@
     <Window.DataContext>
         <viewModel:MainWindowViewModel/>
     </Window.DataContext>
+    <Window.InputBindings>
+        <KeyBinding Key="Escape" Command="{Binding CloseWindowCommand}" CommandParameter="{Binding ElementName=MainWindowRef}"/>
+        <KeyBinding Key="F1" Command="{Binding NavCommand}" CommandParameter="entity"/>
+        <KeyBinding Key="F2" Command="{Binding NavCommand}" CommandParameter="display"/>
+        <KeyBinding Key="F3" Command="{Binding NavCommand}" CommandParameter="graph"/>
+    </Window.InputBindings>
     <Window.Resources>
         <DataTemplate DataType="{x:Type viewModel:NetworkEntitiesViewModel}" >
             <view:NetworkEntitiesView />
@@ -36,6 +43,12 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <notification:NotificationArea
+            Grid.Row="1"
+            x:Name="WindowNotificationArea"
+            Panel.ZIndex="1000"
+            MaxItems="2"
+            Position="TopRight"/>
         <Grid Margin="5"
               Grid.Row="0" 
               Background="{StaticResource BackroundColor}">
@@ -70,12 +83,13 @@
                 Margin="25 5 0 5"
                 Background="{StaticResource BackroundColor}">
                 <Button
-                    Height="30"
+                    Height="40"
                     Margin="10 0 10 0"
                     Command="{Binding NavCommand}"
                     CommandParameter="entity"
                     Style="{StaticResource NavButtonStyle}">
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal"
+                                >
                         <fa5:SvgAwesome 
                             Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                             Icon="Regular_ListAlt"
@@ -95,12 +109,13 @@
                     </Button.ToolTip>
                 </Button>
                 <Button
-                    Height="30"
+                    Height="40"
                     Margin="10 0 10 0"
                     Command="{Binding NavCommand}"
                     CommandParameter="display"
                     Style="{StaticResource NavButtonStyle}">
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal"
+                                >
                         <fa5:SvgAwesome 
                             Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" 
                             Icon="Solid_NetworkWired"
@@ -120,10 +135,11 @@
                     </Button.ToolTip>
                 </Button>
                 <Button
-                    Height="30"
+                    Height="40"
                     Margin="10 0 10 0"
                     Command="{Binding NavCommand}"
                     CommandParameter="graph"
+                    Tag="{Binding CurrentViewModel}"
                     Style="{StaticResource NavButtonStyle}">
                     <StackPanel Orientation="Horizontal">
                         <fa5:SvgAwesome 

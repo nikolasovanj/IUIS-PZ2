@@ -3,6 +3,7 @@ using NetworkService.Helpers;
 using NetworkService.Helpers.Commands;
 using NetworkService.Helpers.Display;
 using NetworkService.Model;
+using Notification.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +21,7 @@ namespace NetworkService.ViewModel
     {
         public MyICommand<string> NavCommand { get; private set; }
         public MyICommand<Window> CloseWindowCommand { get; private set; }
-
+        private NotificationManager notificationManager = new NotificationManager();
         public static ObservableCollection<Entity> Entities { get; set; }
         public static readonly string AddToken = "Add";
         public static readonly string RemoveToken = "Remove";
@@ -110,6 +111,7 @@ namespace NetworkService.ViewModel
 
             Messenger.Default.Register<Entity>(this, AddToken, AddToList);
             Messenger.Default.Register<Entity>(this, RemoveToken, RemoveFromList);
+            Messenger.Default.Register<NotificationContent>(this, ShowToastNotification);
         }
 
         private void createListener()
@@ -242,6 +244,10 @@ namespace NetworkService.ViewModel
                     Connections.RemoveAt(i);
                 }
             }
+        }
+        private void ShowToastNotification(NotificationContent notificationContent)
+        {
+            notificationManager.Show(notificationContent, "WindowNotificationArea");
         }
     }
 }

@@ -90,6 +90,7 @@
     <Compile Include="Helpers\Commands\MyICommand.cs" />
     <Compile Include="Helpers\Converters\ReadingToGraphPositionConverter.cs" />
     <Compile Include="Helpers\Display\DisplayItemConnection.cs" />
+    <Compile Include="Helpers\NotificationHelper.cs" />
     <Compile Include="Helpers\Validation\ValidationBase.cs" />
     <Compile Include="Helpers\Validation\ValidationErrors.cs" />
     <Compile Include="Helpers\Commands\CommandStack.cs" />

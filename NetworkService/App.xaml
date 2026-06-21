@@ -166,6 +166,7 @@
             <Setter Property="FontFamily"             Value="{StaticResource UIFont}"/>
             <Setter Property="FontSize"               Value="12"/>
             <Setter Property="Cursor"                 Value="Hand"/>
+            <Setter Property="FocusVisualStyle"       Value="{x:Null}"/> 
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility"   Value="Auto"/>
             <Setter Property="ScrollViewer.CanContentScroll"              Value="True"/>
@@ -265,20 +266,23 @@
             <Setter Property="Padding"     Value="10,6"/>
             <Setter Property="FontFamily"  Value="{StaticResource UIFont}"/>
             <Setter Property="FontSize"    Value="12"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Cursor"      Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
                         <Border x:Name="ItemBorder"
-                        Background="{TemplateBinding Background}"
-                        Padding="{TemplateBinding Padding}"
-                        SnapsToDevicePixels="True">
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="True">
                             <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
                                 <Setter TargetName="ItemBorder" Property="Background"
-                                Value="{StaticResource PrimaryHighlightColor}"/>
+                                Value="{StaticResource SecondaryHighlightColor}"/>
                                 <Setter Property="Foreground"
                                 Value="{StaticResource SecondaryColor}"/>
                             </Trigger>
@@ -291,6 +295,10 @@
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Foreground"
                                 Value="{StaticResource TertirayColor}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource SecondaryColor }"/>
+                                <Setter Property="Background" Value="{StaticResource SecondaryHighlightColor}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -592,6 +600,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontFamily"      Value="{StaticResource UIFont}"/>
             <Setter Property="FontSize"        Value="12"/>
+            <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
         </Style>
         <Style TargetType="ListViewItem">
             <Setter Property="Foreground" Value="{StaticResource SecondaryColor}"/>
@@ -637,11 +646,11 @@
             <Setter Property="Background" Value="Transparent"/>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{StaticResource PrimaryHighlightColor}"/>
+                    <Setter Property="Background" Value="{StaticResource SecondaryHighlightColor}"/>
                     <Setter Property="Foreground" Value="{StaticResource AccentColor}"/>
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource PrimaryHighlightColor}"/>
+                    <Setter Property="Background" Value="{StaticResource SecondaryHighlightColor}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -662,23 +671,22 @@
             Width="16" Height="16"
             Background="Transparent">
                 <Path x:Name="Arrow"
-              Data="M 0 0 L 4 4 L 0 8"
-              Stroke="{StaticResource TertirayColor}"
-              StrokeThickness="1.5"
-              StrokeLineJoin="Round"
-              StrokeStartLineCap="Round"
-              StrokeEndLineCap="Round"
-              HorizontalAlignment="Center"
-              VerticalAlignment="Center"
-              Width="12" Height="12"
-              RenderTransformOrigin="0.5,0.5">
+                      Data="M 0 0 L 4 4 L 0 8"
+                      Stroke="{StaticResource TertirayColor}"
+                      StrokeThickness="1.5"
+                      StrokeLineJoin="Round"
+                      StrokeStartLineCap="Round"
+                      StrokeEndLineCap="Round"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="12" Height="12"
+                      RenderTransformOrigin="0.5,0.5">
                     <Path.RenderTransform>
                         <RotateTransform x:Name="ArrowRotation" Angle="0"/>
                     </Path.RenderTransform>
                 </Path>
             </Border>
             <ControlTemplate.Triggers>
-                <!-- Expanded – rotate arrow 90° to point down -->
                 <Trigger Property="IsChecked" Value="True">
                     <Setter TargetName="Arrow" Property="Stroke"
                     Value="{StaticResource AccentColor}"/>
@@ -708,7 +716,6 @@
                     <Setter TargetName="Arrow" Property="Stroke"
                     Value="{StaticResource SecondaryHighlightColor}"/>
                 </Trigger>
-                <!-- Hidden when node has no children -->
                 <Trigger Property="Visibility" Value="Hidden">
                     <Setter TargetName="Arrow" Property="Opacity" Value="0"/>
                 </Trigger>
@@ -737,9 +744,7 @@
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <!-- header row -->
                                 <RowDefinition Height="Auto"/>
-                                <!-- children panel -->
                             </Grid.RowDefinitions>
 
                             <!-- ── Header row ── -->
@@ -754,18 +759,12 @@
                             SnapsToDevicePixels="True">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <!-- indent spacer – width driven by item depth
-                                     via the Indent attached property below   -->
                                         <ColumnDefinition x:Name="IndentColumn" Width="0"/>
-                                        <!-- expander arrow -->
                                         <ColumnDefinition Width="20"/>
-                                        <!-- accent bar -->
                                         <ColumnDefinition Width="3"/>
-                                        <!-- content -->
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- Per-level indent spacer (width set in triggers) -->
                                     <Rectangle Grid.Column="0" Fill="Transparent"/>
 
                                     <!-- Expander toggle -->
