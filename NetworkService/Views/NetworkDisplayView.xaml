@@ -116,6 +116,7 @@
                                                 <Setter Property="Background" Value="{Binding Background}"/>
                                                 <Setter Property="Cursor" Value="Hand"/>
                                             </DataTrigger>
+                                            
                                         </Style.Triggers>
                                     </Style>
                                 </Canvas.Style>
@@ -169,7 +170,7 @@
                                 <Rectangle
                                         Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Canvas}}"
                                         Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"
-                                        Stroke="Crimson"
+                                        Stroke="{StaticResource ErrorColor}"
                                         StrokeThickness="3"
                                         IsHitTestVisible="False">
                                     <Rectangle.Style>
@@ -179,6 +180,7 @@
                                                 <DataTrigger Binding="{Binding Entity.Value, Converter={StaticResource DisplayErrorConverter}}" Value="false">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                 </DataTrigger>
+                                                
                                             </Style.Triggers>
                                         </Style>
                                     </Rectangle.Style>
@@ -186,7 +188,7 @@
                                 <Rectangle
                                     Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Canvas}}"
                                     Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}"
-                                    Stroke="Cyan"
+                                    Stroke="{StaticResource AccentColor}"
                                     StrokeThickness="3"
                                     IsHitTestVisible="False">
                                     <Rectangle.Style>

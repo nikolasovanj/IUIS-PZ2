@@ -26,33 +26,9 @@ namespace NetworkService.ViewModel
         public static readonly string AddToken = "Add";
         public static readonly string RemoveToken = "Remove";
         public static ObservableCollection<DisplayItem> Slots { get; set; }
-            = new ObservableCollection<DisplayItem>()
-            {
-                new DisplayItem(){X=0,  Y=0},
-                new DisplayItem(){X=160,Y=0},
-                new DisplayItem(){X=320,Y=0},
-                new DisplayItem(){X=480,Y=0},
-                new DisplayItem(){X=0,  Y=130},
-                new DisplayItem(){X=160,Y=130},
-                new DisplayItem(){X=320,Y=130},
-                new DisplayItem(){X=480,Y=130},
-                new DisplayItem(){X=0,  Y=260},
-                new DisplayItem(){X=160,Y=260},
-                new DisplayItem(){X=320,Y=260},
-                new DisplayItem(){X=480,Y=260},
-                new DisplayItem(){X=0,  Y=390},
-                new DisplayItem(){X=160,Y=390},
-                new DisplayItem(){X=320,Y=390},
-                new DisplayItem(){X=480,Y=390}
-
-            };
         public static ObservableCollection<EntityByType> EntitiesByType { get; set; } 
         public static ObservableCollection<DisplayItemConnection> Connections { get; set; } = new ObservableCollection<DisplayItemConnection>();
-        public static ObservableCollection<EntityType> Types { get; } = new ObservableCollection<EntityType>
-        {
-            new EntityType("RTD", "../../Data/Images/RTD.png"),
-            new EntityType("TC", "../../Data/Images/TC.png")
-        };
+        public static ObservableCollection<EntityType> Types { get; private set; } 
         public static CommandStack EntitiesHistory { get; set; } = new CommandStack();
         public static CommandStack DisplayHistory { get; set; } = new CommandStack();
         private int count = 1; // Inicijalna vrednost broja objekata u sistemu
@@ -75,35 +51,7 @@ namespace NetworkService.ViewModel
             createListener(); //Povezivanje sa serverskom aplikacijom
             NavCommand = new MyICommand<string>(OnNav);
             CloseWindowCommand = new MyICommand<Window>(OnWindowClose);
-            Entity e = new Entity { ID = 1, Name = "RTD-001", Type = Types[0] };
-            Entity e1 = new Entity { ID = 2, Name = "TSP-001", Type = Types[1] };
-            Entity e2 = new Entity { ID = 3, Name = "RTD-002", Type = Types[0] };
-            Entity e3 = new Entity { ID = 4, Name = "TSP-002", Type = Types[1] };
-            e.Value = 336;
-            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 4);
-            e.Value = 184;
-            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 7);
-            e.Value = 265;
-            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 11);
-            e.Value = 276;
-            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 14);
-            e.Value = 442;
-            e.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 18);
-            e1.Value = 206;
-            e1.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 21);
-            e2.Value = 302;
-            e2.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 25);
-            e3.Value = 442;
-            e3.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 31);
-            Entities = new ObservableCollection<Entity>() { e, e1, e2, e3 };
-            count = Entities.Count;
-            EntitiesByType = new ObservableCollection<EntityByType>(
-                Entities.GroupBy(et => et.Type).Select(g => new EntityByType
-                {
-                    Type = g.Key,
-                    Entities = new ObservableCollection<Entity>(g)
-                })
-            );
+            LoadInitialData();
             networkDisplayViewModel = new NetworkDisplayViewModel();
             networkEntitiesViewModel = new NetworkEntitiesViewModel();
             measurementGraphViewModel = new MeasurementGraphViewModel();
@@ -248,6 +196,92 @@ namespace NetworkService.ViewModel
         private void ShowToastNotification(NotificationContent notificationContent)
         {
             notificationManager.Show(notificationContent, "WindowNotificationArea");
+        }
+
+        private void LoadInitialData() 
+        { 
+            Slots = new ObservableCollection<DisplayItem>()
+            {
+                new DisplayItem(){X=0,  Y=0},
+                new DisplayItem(){X=160,Y=0},
+                new DisplayItem(){X=320,Y=0},
+                new DisplayItem(){X=480,Y=0},
+                new DisplayItem(){X=0,  Y=130},
+                new DisplayItem(){X=160,Y=130},
+                new DisplayItem(){X=320,Y=130},
+                new DisplayItem(){X=480,Y=130},
+                new DisplayItem(){X=0,  Y=260},
+                new DisplayItem(){X=160,Y=260},
+                new DisplayItem(){X=320,Y=260},
+                new DisplayItem(){X=480,Y=260},
+                new DisplayItem(){X=0,  Y=390},
+                new DisplayItem(){X=160,Y=390},
+                new DisplayItem(){X=320,Y=390},
+                new DisplayItem(){X=480,Y=390}
+
+            };
+            Types = new ObservableCollection<EntityType>
+            {
+                new EntityType("RTD", "../../Data/Images/RTD.png"),
+                new EntityType("TC", "../../Data/Images/TC.png")
+            };
+            Entity e1 = new Entity { ID = 1, Name = "RTD-001", Type = Types[0] };
+            Entity e2 = new Entity { ID = 3, Name = "RTD-002", Type = Types[0] };
+            Entity e3 = new Entity { ID = 4, Name = "TSP-002", Type = Types[1] };
+            Entity e4 = new Entity { ID = 2, Name = "TSP-001", Type = Types[1] };
+            e1.Value = 336;
+            e1.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 4);
+            e1.Value = 184;
+            e1.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 7);
+            e1.Value = 265;
+            e1.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 11);
+            e1.Value = 276;
+            e1.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 14);
+            e1.Value = 442;
+            e1.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 18);
+
+            e2.Value = 234;
+            e2.TimeStamp = new DateTime(2026, 06, 11, 10, 44, 4);
+            e2.Value = 356;
+            e2.TimeStamp = new DateTime(2026, 06, 11, 10, 44, 7);
+            e2.Value = 434;
+            e2.TimeStamp = new DateTime(2026, 06, 11, 10, 44, 11);
+            e2.Value = 163;
+            e2.TimeStamp = new DateTime(2026, 06, 11, 10, 44, 14);
+            e2.Value = 354;
+            e2.TimeStamp = new DateTime(2026, 06, 11, 10, 44, 18);
+
+            e3.Value = 234;
+            e3.TimeStamp = new DateTime(2026, 06, 12, 19, 04, 4);
+            e3.Value = 342;
+            e3.TimeStamp = new DateTime(2026, 06, 12, 19, 04, 7);
+            e3.Value = 342;
+            e3.TimeStamp = new DateTime(2026, 06, 12, 19, 04, 11);
+            e3.Value = 346;
+            e3.TimeStamp = new DateTime(2026, 06, 12, 19, 04, 14);
+            e3.Value = 432;
+            e3.TimeStamp = new DateTime(2026, 06, 12, 19, 04, 18);
+
+            e4.Value = 321;
+            e4.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 4);
+            e4.Value = 323;
+            e4.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 7);
+            e4.Value = 346;
+            e4.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 11);
+            e4.Value = 232;
+            e4.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 14);
+            e4.Value = 443;
+            e4.TimeStamp = new DateTime(2026, 06, 10, 19, 44, 18);
+
+            Entities = new ObservableCollection<Entity>() { e1, e2, e3, e4 };
+            count = Entities.Count;
+            EntitiesByType = new ObservableCollection<EntityByType>(
+                Entities.GroupBy(et => et.Type).Select(g => new EntityByType
+                {
+                    Type = g.Key,
+                    Entities = new ObservableCollection<Entity>(g)
+                })
+            );
         }
     }
 }
