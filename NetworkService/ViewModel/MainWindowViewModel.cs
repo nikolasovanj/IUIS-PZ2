@@ -74,36 +74,43 @@ namespace NetworkService.ViewModel
                     var tcpClient = tcp.AcceptTcpClient();
                     ThreadPool.QueueUserWorkItem(param =>
                     {
-                        //Prijem poruke
-                        NetworkStream stream = tcpClient.GetStream();
-                        string incomming;
-                        byte[] bytes = new byte[1024];
-                        int i = stream.Read(bytes, 0, bytes.Length);
-                        //Primljena poruka je sacuvana u incomming stringu
-                        incomming = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                        try 
+                        { 
+                            //Prijem poruke
+                            NetworkStream stream = tcpClient.GetStream();
+                            string incomming;
+                            byte[] bytes = new byte[1024];
+                            int i = stream.Read(bytes, 0, bytes.Length);
+                            //Primljena poruka je sacuvana u incomming stringu
+                            incomming = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
 
-                        //Ukoliko je primljena poruka pitanje koliko objekata ima u sistemu -> odgovor
-                        if (incomming.Equals("Need object count"))
-                        {
-                            //Response
-                            /* Umesto sto se ovde salje count.ToString(), potrebno je poslati 
-                                * duzinu liste koja sadrzi sve objekte pod monitoringom, odnosno
-                                * njihov ukupan broj (NE BROJATI OD NULE, VEC POSLATI UKUPAN BROJ)
-                                * */
-                            Byte[] data = System.Text.Encoding.ASCII.GetBytes(count.ToString());
-                            stream.Write(data, 0, data.Length);
+                            //Ukoliko je primljena poruka pitanje koliko objekata ima u sistemu -> odgovor
+                            if (incomming.Equals("Need object count"))
+                            {
+                                //Response
+                                /* Umesto sto se ovde salje count.ToString(), potrebno je poslati 
+                                    * duzinu liste koja sadrzi sve objekte pod monitoringom, odnosno
+                                    * njihov ukupan broj (NE BROJATI OD NULE, VEC POSLATI UKUPAN BROJ)
+                                    * */
+                                Byte[] data = System.Text.Encoding.ASCII.GetBytes(count.ToString());
+                                stream.Write(data, 0, data.Length);
+                            }
+                            else
+                            {
+                                //U suprotnom, server je poslao promenu stanja nekog objekta u sistemu
+                                Trace.WriteLine(incomming); //Na primer: "Entitet_1:272"
+                                                            //################ IMPLEMENTACIJA ####################
+                                                            // Obraditi poruku kako bi se dobile informacije o izmeni
+                                                            // Azuriranje potrebnih stvari u aplikaciji
+                                var result = ParseIncomming(incomming);
+                                Entities[result.index].Value = result.value;
+                                Entities[result.index].TimeStamp = DateTime.Now;
+                                File.AppendAllText("../../Data/log.txt", Entities[result.index].ToLog());
+                            }
                         }
-                        else
+                        catch
                         {
-                            //U suprotnom, server je poslao promenu stanja nekog objekta u sistemu
-                            Trace.WriteLine(incomming); //Na primer: "Entitet_1:272"
-                                                        //################ IMPLEMENTACIJA ####################
-                                                        // Obraditi poruku kako bi se dobile informacije o izmeni
-                                                        // Azuriranje potrebnih stvari u aplikaciji
-                            var result = ParseIncomming(incomming);
-                            Entities[result.index].Value = result.value;
-                            Entities[result.index].TimeStamp = DateTime.Now;
-                            File.AppendAllText("../../Data/log.txt", Entities[result.index].ToLog());
+                            Trace.Write("Error in communication trying again");
                         }
                     }, null);
                 }
