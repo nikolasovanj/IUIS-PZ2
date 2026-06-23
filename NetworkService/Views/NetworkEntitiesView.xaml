@@ -265,7 +265,7 @@
             Height="30"
             Width="160"
             VerticalAlignment="Bottom"
-            Margin="0 0 0 4"
+            Margin="0 0 0 10"
             Command="{Binding DeleteCommand}"
             Style="{StaticResource DeleteButtonStyle}"
             ToolTip="Delete the selected entity (Ctrl+D)">

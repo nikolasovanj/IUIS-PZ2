@@ -117,6 +117,11 @@ namespace NetworkService.ViewModel
                     Name = currentEntity.Name,
                     Type = currentEntity.Type
                 };
+                if(Entities.Any(e => e.ID == entity.ID))
+                {
+                    Messenger.Default.Send(NotificationHelper.CreateErrorToastNotification($"Enitity with ID: {entity.ID} already exists"));
+                    return;
+                }
                 Messenger.Default.Send(entity, MainWindowViewModel.AddToken);
                 FilteredEntities = Entities;
                 ApplyFilter(Filter);
