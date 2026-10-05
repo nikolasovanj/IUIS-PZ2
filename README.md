@@ -243,9 +243,9 @@ The application has three primary views:
 
 ```text
 ┌─────────────────────────────────────────────┐
-│                 NETWORK SERVICE              │
+│                 NETWORK SERVICE             │
 │                                             │
-│  [Entities]   [Network Display]   [Graphs] │
+│  [Entities]   [Network Display]   [Graphs]  │
 ├─────────────────────────────────────────────┤
 │                                             │
 │              Current View                   │
